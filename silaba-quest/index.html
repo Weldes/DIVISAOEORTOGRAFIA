@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sílaba Quest — A Aventura das Palavras</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #0d1117;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+}
+#wrap {
+  position: relative;
+  box-shadow: 0 0 40px rgba(255,215,0,0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+canvas { display: block; }
+#quiz {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(5,5,20,0.97);
+  border: 3px solid #FFD700;
+  border-radius: 14px;
+  padding: 22px 24px 18px;
+  width: 700px;
+  max-width: 96%;
+  z-index: 20;
+  color: #fff;
+}
+#quiz h2 { color:#FFD700; text-align:center; font-size:15px; margin-bottom:12px; letter-spacing:1px; }
+#quizQ { font-size:17px; text-align:center; line-height:1.5; margin-bottom:16px; color:#eee; }
+#quizOpts { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.obtn {
+  padding:11px 10px;
+  border:2px solid #FFD700;
+  background:transparent;
+  color:#fff;
+  font-size:14px;
+  cursor:pointer;
+  border-radius:8px;
+  font-family:'Courier New',monospace;
+  transition:background .15s, color .15s;
+  text-align:center;
+}
+.obtn:hover:not(:disabled) { background:#FFD700; color:#000; }
+.obtn.ok  { background:#1a7a1a; border-color:#1a7a1a; cursor:default; }
+.obtn.bad { background:#7a1a1a; border-color:#7a1a1a; cursor:default; }
+#quizExp {
+  display:none;
+  margin-top:12px;
+  padding:10px 12px;
+  background:rgba(255,215,0,0.08);
+  border-left:3px solid #FFD700;
+  border-radius:6px;
+  font-size:13px;
+  color:#FFD700;
+  line-height:1.5;
+}
+#quizCont {
+  display:none;
+  margin-top:12px;
+  width:100%;
+  padding:11px;
+  background:#FFD700;
+  color:#000;
+  border:none;
+  border-radius:8px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  font-family:'Courier New',monospace;
+  letter-spacing:1px;
+}
+#quizCont:hover { background:#ffe066; }
+#hint {
+  margin-top:7px;
+  color:#888;
+  font-size:12px;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" width="800" height="450"></canvas>
+  <div id="quiz">
+    <h2 id="quizTitle"></h2>
+    <div id="quizQ"></div>
+    <div id="quizOpts"></div>
+    <div id="quizExp"></div>
+    <button id="quizCont" onclick="closeQuiz()">▶ Continuar aventura!</button>
+  </div>
+</div>
+<p id="hint">← → Mover &nbsp;|&nbsp; ↑ / Espaço Pular &nbsp;|&nbsp; Responda as perguntas para avançar!</p>
+
+<script>
+// ─── CONTENT ──────────────────────────────────────────────────────────────────
+const LEVELS = [
+  {
+    name:"Floresta das Sílabas",
+    bg:"#87CEEB", groundColor:"#228B22", groundBase:"#8B4513",
+    cloud:"rgba(255,255,255,0.85)",
+    qs:[
+      {
+        t:"Qual é a divisão silábica correta de 'BÍCEPS'?",
+        r:"Regra 2: Consoante solta fica na sílaba anterior",
+        o:["BÍ-CEPS","BÍ-CE-PS","BÍ-C-EPS","BI-CEPS"],
+        c:0,
+        e:"BÍ-CEPS — A consoante P fica na sílaba anterior pois não há vogal após ela."
+      },
+      {
+        t:"Qual é a divisão silábica correta de 'TUNGSTÊNIO'?",
+        r:"Regra 2: Consoante solta fica na sílaba anterior",
+        o:["TUN-GS-TÊ-NIO","TUNGS-TÊ-NIO","TUNGS-TÊ-NI-O","TUN-GSTÊ-NIO"],
+        c:1,
+        e:"TUNGS-TÊ-NIO — O grupo NGS fica junto na primeira sílaba pois não é possível separá-los."
+      },
+      {
+        t:"Qual é a divisão silábica correta de 'TRABALHO'?",
+        r:"Regra 3: Dígrafos NH, CH, LH ficam na mesma sílaba",
+        o:["TRA-BA-LH-O","TRAB-A-LHO","TRA-BA-LHO","TRA-BAL-HO"],
+        c:2,
+        e:"TRA-BA-LHO — O dígrafo LH nunca é separado: fica sempre na mesma sílaba."
+      },
+      {
+        t:"Qual é a divisão silábica correta de 'PROBLEMA'?",
+        r:"Regra 4: Encontros consonantais perfeitos ficam juntos",
+        o:["PROB-LE-MA","PRO-BLE-MA","P-ROB-LE-MA","PRO-BLEM-A"],
+        c:1,
+        e:"PRO-BLE-MA — BL é encontro consonantal perfeito e fica sempre na mesma sílaba."
+      },
+      {
+        t:"Qual é a divisão silábica correta de 'CARRO'?",
+        r:"Regra 5: Dígrafos RR e SS ficam sempre separados",
+        o:["CARR-O","CA-RRO","CAR-RO","C-AR-RO"],
+        c:2,
+        e:"CAR-RO — O dígrafo RR é sempre separado na divisão silábica."
+      },
+    ]
+  },
+  {
+    name:"Gruta dos Hiatos",
+    bg:"#1a2a4a", groundColor:"#5a3010", groundBase:"#3a1a05",
+    cloud:"rgba(180,180,255,0.5)",
+    qs:[
+      {
+        t:"Qual é a divisão silábica correta de 'CAATINGA'?",
+        r:"Regra 6: Vogais iguais ficam sempre separadas",
+        o:["CAA-TIN-GA","CA-A-TIN-GA","CA-AT-IN-GA","CAAT-IN-GA"],
+        c:1,
+        e:"CA-A-TIN-GA — Vogais iguais são sempre separadas em sílabas distintas."
+      },
+      {
+        t:"Qual é a divisão silábica correta de 'BAÚ'?",
+        r:"Regra 7: Vogais de hiatos ficam em sílabas separadas",
+        o:["BAÚ","BA-Ú","B-AÚ","BA-U"],
+        c:1,
+        e:"BA-Ú — Hiato: as vogais A e U estão em sílabas separadas."
+      },
+      {
+        t:"Qual é a divisão silábica correta de 'FLÁVIA'?",
+        r:"Regra 8: Sons vocálicos dos ditongos ficam na mesma sílaba",
+        o:["FLÁ-VI-A","FLÁ-VIA","FL-Á-VIA","FLÁ-V-IA"],
+        c:1,
+        e:"FLÁ-VIA — O ditongo IA fica na mesma sílaba."
+      },
+      {
+        t:"Qual é a divisão silábica correta de 'PARAGUAI'?",
+        r:"Regra 9: Sons vocálicos dos tritongos ficam na mesma sílaba",
+        o:["PA-RA-GU-AI","PAR-A-GUAI","PA-RA-GUAI","PA-RAG-UAI"],
+        c:2,
+        e:"PA-RA-GUAI — O tritongo UAI fica sempre na mesma sílaba."
+      },
+      {
+        t:"Como dividir 'HISTÓRIA' (com acento)?",
+        r:"Observação 1: Com acento, sons crescentes finais ficam juntos",
+        o:["HIS-TÓ-RI-A","HIS-TÓ-RIA","HIS-TO-RI-A","HIS-TOR-IA"],
+        c:1,
+        e:"HIS-TÓ-RIA — Com acento na vogal anterior, os sons vocálicos crescentes finais ficam juntos."
+      },
+    ]
+  },
+  {
+    name:"Reino da Acentuação",
+    bg:"#1a1040", groundColor:"#5a0070", groundBase:"#2a0030",
+    cloud:"rgba(200,150,255,0.4)",
+    qs:[
+      {
+        t:"Por que 'MÊS' é acentuado?",
+        r:"Regra 1: Monossílabos tônicos terminados em A, E, O",
+        o:["É paroxítona","É monossílabo tônico terminado em E","É oxítona terminada em ES","É proparoxítona"],
+        c:1,
+        e:"Regra 1: Acentuam-se os monossílabos tônicos (substantivos, adjetivos, verbos...) terminados em A, E, O."
+      },
+      {
+        t:"Por que 'CAFÉ' é acentuado?",
+        r:"Regra 2: Oxítonas terminadas em A, E, O",
+        o:["É proparoxítona","É paroxítona terminada em E","É oxítona terminada em E","É monossílabo tônico"],
+        c:2,
+        e:"Regra 2: Oxítonas terminadas em A, E, O (seguidos ou não de S, EM, ENS) são acentuadas."
+      },
+      {
+        t:"'AMÁVEL' é acentuado porque...",
+        r:"Regra 3: Paroxítonas com terminações especiais",
+        o:["É proparoxítona","É oxítona terminada em L","É paroxítona terminada em L","É monossílabo tônico"],
+        c:2,
+        e:"Regra 3: Paroxítonas terminadas em L, N, R, X, I, UM, UNS, Ã, ÃO, PS são acentuadas."
+      },
+      {
+        t:"Por que 'FÍSICA' é acentuada?",
+        r:"Regra 4: Proparoxítonas sempre se acentuam",
+        o:["É oxítona terminada em A","É paroxítona terminada em A","É proparoxítona — acento na antepenúltima sílaba","É monossílabo tônico"],
+        c:2,
+        e:"Regra 4: Todas as proparoxítonas são acentuadas em qualquer situação: FÍ-SI-CA."
+      },
+      {
+        t:"Por que 'MELANCIA' (sem acento) se divide ME-LAN-CI-A?",
+        r:"Observação 1: Sem acento, sons crescentes finais ficam separados",
+        o:["Regra do hiato","Porque termina em A","Sem acento, sons vocálicos crescentes finais ficam separados","Porque é proparoxítona"],
+        c:2,
+        e:"Obs. 1: Sem acento na vogal anterior, os sons vocálicos crescentes terminais ficam separados: ME-LAN-CI-A."
+      },
+    ]
+  },
+  {
+    name:"Palácio das Regras Especiais",
+    bg:"#100505", groundColor:"#8B0000", groundBase:"#4a0000",
+    cloud:"rgba(255,100,100,0.3)",
+    qs:[
+      {
+        t:"Por que 'CÉU' é acentuado?",
+        r:"Regra Especial 1: Ditongos abertos OI, EU, EI no fim da palavra",
+        o:["É proparoxítona","É ditongo aberto EU no fim da palavra","É monossílabo tônico em U","É paroxítona"],
+        c:1,
+        e:"Regra Especial 1: Ditongos abertos OI, EU, EI no fim da palavra são acentuados: céu, véu, herói, anéis."
+      },
+      {
+        t:"Por que 'SAÍDA' é acentuada?",
+        r:"Regra Especial 2: Hiatos tônicos I/U sozinhos ou seguidos de S",
+        o:["É oxítona terminada em A","É proparoxítona","Hiato tônico com I sozinho ou seguido de S","É monossílabo tônico"],
+        c:2,
+        e:"Regra Especial 2: Hiatos tônicos I/U sozinhos ou seguidos de S são acentuados: saída, juíza, baú."
+      },
+      {
+        t:"Qual é a diferença entre PÔR e POR?",
+        r:"Acentos diferenciais",
+        o:["Não há diferença gramatical","PÔR é verbo, POR é preposição","POR é verbo, PÔR é preposição","Ambos são verbos"],
+        c:1,
+        e:"Acento diferencial: PÔR (verbo) × POR (preposição). Também: pôde (passado) × pode (presente)."
+      },
+      {
+        t:"Por que 'RAINHA' não tem o I acentuado?",
+        r:"Regra Especial 2: Hiato longe de NH não é acentuado",
+        o:["I nunca é acentuado em hiatos","Porque é paroxítona terminada em A","Hiatos com I/U não são acentuados quando antes de NH","Não existe regra para isso"],
+        c:2,
+        e:"Regra Especial 2: Hiatos com I/U NÃO são acentuados quando o I/U for seguido de NH: rainha, moinho."
+      },
+      {
+        t:"Qual forma do plural é correta para o verbo TER?",
+        r:"Dica 1: Verbos TER e VIR recebem circunflexo no plural",
+        o:["Tems","Têem","Têm","Tem"],
+        c:2,
+        e:"Dica 1: TER e VIR recebem circunflexo no plural, sem duplicar vogal: ele tem → eles têm; ele vem → eles vêm."
+      },
+    ]
+  },
+  {
+    name:"Torre das Dicas Finais",
+    bg:"#0a0a0a", groundColor:"#B8860B", groundBase:"#5a4000",
+    cloud:"rgba(255,215,0,0.25)",
+    qs:[
+      {
+        t:"Qual é o plural correto de VEM (verbo VIR)?",
+        r:"Dica 1: Verbos TER e VIR — plural com circunflexo",
+        o:["Vems","Vêem","Vêm","Véem"],
+        c:2,
+        e:"Dica 1: O verbo VIR recebe apenas circunflexo no plural, sem duplicar a vogal: ele vem → eles vêm."
+      },
+      {
+        t:"Como se conjuga DETER (plural, 3.ª pessoa)?",
+        r:"Dica 2: Derivados de TER — agudo no singular, circunflexo no plural",
+        o:["Detem","Detêm","Détêm","Detém"],
+        c:1,
+        e:"Dica 2: Derivados de TER recebem agudo no singular (detém) e circunflexo no plural (detêm)."
+      },
+      {
+        t:"Qual é o plural correto de CRÊ (verbo CRER)?",
+        r:"Dica 3: Crer, dar, ler, ver — duplicam vogal no plural sem acento",
+        o:["Crêem","Créem","Creem","Crêm"],
+        c:2,
+        e:"Dica 3: Crer, dar, ler, ver e derivados duplicam a vogal no plural sem acento: crê → creem, vê → veem."
+      },
+      {
+        t:"Quando a palavra QUE é acentuada (quê)?",
+        r:"Dica 4: O acento em QUÊ indica tonicidade",
+        o:["Sempre que aparecer na frase","Quando é conjunção","Quando é tônico: função substantiva, fim de frase ou antes de pausa","Nunca é acentuada"],
+        c:2,
+        e:"Dica 4: QUÊ leva acento quando tônico: função substantiva (um quê de...), fim de frase (medo de quê?), antes de pausa."
+      },
+      {
+        t:"Por que HIFENS (plural) não tem acento?",
+        r:"Dica 6: Paroxítonas terminadas em S não são acentuadas",
+        o:["Plural nunca tem acento","Hífen tem acento porque é paroxítona em N; no plural termina em NS — sem acento","Erro gramatical, deveria ter","Porque é oxítona no plural"],
+        c:1,
+        e:"Dica 6: HÍFEN (paroxítona em N → acentuada). No plural HIFENS termina em NS (paroxítona em S → não acentuada)."
+      },
+    ]
+  },
+];
+
+// ─── ENGINE ───────────────────────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const W = 800, H = 450;
+const LW = 2800;                // level width
+const GROUND_Y = H - 60;       // top of ground
+const G = 0.55, JUMP = -13, SPD = 4;
+
+let state = 'title';            // title | playing | quiz | lvlEnd | over | win
+let lvlIdx = 0, lives = 3, score = 0;
+let qAnswered = 0, qCorrect = 0;
+
+let platforms = [], qblocks = [], coins = [], particles = [];
+let camX = 0;
+let quizOpen = false, curQ = null;
+
+const pl = { x:80, y:GROUND_Y-44, w:32, h:44, vx:0, vy:0, ground:false, dir:1, wf:0, wt:0 };
+
+const keys = {};
+document.addEventListener('keydown', e=>{
+  keys[e.code]=true;
+  if(['Space','ArrowUp','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if(e.code==='Enter'||e.code==='Space'){
+    if(state==='title')   startGame();
+    if(state==='lvlEnd')  doNextLevel();
+    if(state==='over')    startGame();
+    if(state==='win')     startGame();
+  }
+});
+document.addEventListener('keyup', e=>{ keys[e.code]=false; });
+
+// ─── LEVEL BUILD ──────────────────────────────────────────────────────────────
+function buildLevel(idx){
+  platforms=[]; qblocks=[]; coins=[]; particles=[];
+  camX=0; qAnswered=0; qCorrect=0;
+
+  // Ground
+  platforms.push({x:0,y:GROUND_Y,w:LW,h:60,ground:true});
+
+  // Static platform layout (same per level, aesthetic)
+  const plats=[
+    {x:160,y:GROUND_Y-100,w:110,h:18},
+    {x:340,y:GROUND_Y-145,w:100,h:18},
+    {x:500,y:GROUND_Y-95, w:90, h:18},
+    {x:660,y:GROUND_Y-155,w:110,h:18},
+    {x:820,y:GROUND_Y-110,w:90, h:18},
+    {x:970,y:GROUND_Y-155,w:120,h:18},
+    {x:1150,y:GROUND_Y-100,w:100,h:18},
+    {x:1300,y:GROUND_Y-165,w:110,h:18},
+    {x:1470,y:GROUND_Y-110,w:90, h:18},
+    {x:1620,y:GROUND_Y-150,w:120,h:18},
+    {x:1800,y:GROUND_Y-100,w:100,h:18},
+    {x:1960,y:GROUND_Y-160,w:110,h:18},
+    {x:2130,y:GROUND_Y-110,w:90, h:18},
+    {x:2280,y:GROUND_Y-150,w:120,h:18},
+    {x:2440,y:GROUND_Y-100,w:100,h:18},
+    {x:2590,y:GROUND_Y-155,w:110,h:18},
+  ];
+  plats.forEach(p=>platforms.push({...p,ground:false}));
+
+  // Question blocks — 5 per level, spread across level
+  const lvl=LEVELS[idx];
+  const qxs=[360,720,1100,1500,1900];
+  qxs.forEach((qx,i)=>{
+    if(i<lvl.qs.length){
+      qblocks.push({x:qx,y:GROUND_Y-190,w:42,h:42,hit:false,qi:i,bounce:0});
+    }
+  });
+
+  // Coins
+  for(let i=0;i<28;i++){
+    coins.push({x:120+i*95+Math.random()*40, y:GROUND_Y-80-Math.random()*90, done:false});
+  }
+
+  // Flag pole
+  platforms.push({x:LW-80,y:GROUND_Y-220,w:12,h:220,ground:false,pole:true});
+
+  pl.x=80; pl.y=GROUND_Y-pl.h; pl.vx=0; pl.vy=0; pl.ground=false;
+}
+
+// ─── GAME LOGIC ───────────────────────────────────────────────────────────────
+function startGame(){ lvlIdx=0; lives=3; score=0; buildLevel(0); state='playing'; }
+
+function doNextLevel(){
+  lvlIdx++;
+  if(lvlIdx>=LEVELS.length){ state='win'; return; }
+  buildLevel(lvlIdx); state='playing';
+}
+
+function loseLife(){
+  lives--;
+  if(lives<=0){ state='over'; return; }
+  pl.x=80; pl.y=GROUND_Y-pl.h; pl.vx=0; pl.vy=0; camX=0;
+}
+
+function boom(x,y,col,n=8){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, s=1.5+Math.random()*3;
+    particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,col,life:28,maxLife:28});
+  }
+}
+
+function update(){
+  if(state!=='playing'||quizOpen) return;
+
+  let dx=0;
+  if(keys['ArrowLeft']||keys['KeyA']){dx=-1; pl.dir=-1;}
+  if(keys['ArrowRight']||keys['KeyD']){dx=1; pl.dir=1;}
+  pl.vx = dx*SPD;
+
+  if((keys['ArrowUp']||keys['KeyW']||keys['Space']) && pl.ground){
+    pl.vy=JUMP; pl.ground=false;
+  }
+
+  pl.vy += G;
+  if(pl.vy>16) pl.vy=16;
+  pl.x += pl.vx;
+  pl.y += pl.vy;
+
+  if(pl.x<0) pl.x=0;
+  if(pl.x>LW-pl.w) pl.x=LW-pl.w;
+
+  pl.ground=false;
+  for(const p of platforms){
+    if(p.pole) continue;
+    if(rect(pl,p)){
+      const oy=Math.min(pl.y+pl.h,p.y+p.h)-Math.max(pl.y,p.y);
+      const ox=Math.min(pl.x+pl.w,p.x+p.w)-Math.max(pl.x,p.x);
+      if(oy<ox){
+        if(pl.y+pl.h/2<p.y+p.h/2){ pl.y=p.y-pl.h; pl.vy=0; pl.ground=true; }
+        else { pl.y=p.y+p.h; pl.vy=Math.abs(pl.vy)*0.3; }
+      } else {
+        if(pl.x+pl.w/2<p.x+p.w/2) pl.x=p.x-pl.w;
+        else pl.x=p.x+p.w;
+        pl.vx=0;
+      }
+    }
+  }
+
+  // Hit question blocks from below (jumping up)
+  for(const qb of qblocks){
+    if(qb.hit) continue;
+    // Below collision: player head touches block bottom
+    const head={x:pl.x+4,y:pl.y-4,w:pl.w-8,h:8};
+    const foot={x:qb.x,y:qb.y+qb.h-2,w:qb.w,h:6};
+    if(pl.vy<-1 && rect(head,foot)){
+      qb.hit=true; qb.bounce=10;
+      pl.vy=3;
+      boom(qb.x+qb.w/2, qb.y,'#FFD700');
+      openQuiz(qb.qi);
+    }
+    // Also: walk into block zone trigger (at ? block level, player overlaps)
+    if(!qb.hit && pl.x+pl.w>qb.x+2 && pl.x<qb.x+qb.w-2 &&
+       pl.y<qb.y+qb.h && pl.y+pl.h>qb.y){
+      qb.hit=true; qb.bounce=8;
+      boom(qb.x+qb.w/2,qb.y,'#FFD700');
+      openQuiz(qb.qi);
+    }
+  }
+
+  // Coins
+  for(const c of coins){
+    if(!c.done && pl.x+pl.w>c.x-8 && pl.x<c.x+18 && pl.y+pl.h>c.y-8 && pl.y<c.y+18){
+      c.done=true; score+=10; boom(c.x,c.y,'#FFD700',6);
+    }
+  }
+
+  // Flag reach — only if all questions answered
+  const flag={x:LW-80,y:GROUND_Y-220,w:60,h:220};
+  if(rect(pl,flag)){
+    const needed=LEVELS[lvlIdx].qs.length;
+    if(qAnswered>=needed){ state='lvlEnd'; }
+  }
+
+  if(pl.y>H+80) loseLife();
+
+  // Camera
+  const tx=pl.x-W/2+pl.w/2;
+  camX+=(tx-camX)*0.12;
+  camX=Math.max(0,Math.min(LW-W,camX));
+
+  // Walk anim
+  if(pl.vx!==0 && pl.ground){ pl.wt++; if(pl.wt>7){pl.wt=0;pl.wf=(pl.wf+1)%3;} }
+  else { pl.wf=0; pl.wt=0; }
+
+  // Bounce qblocks
+  for(const qb of qblocks){ if(qb.bounce>0) qb.bounce-=2; }
+
+  // Particles
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.25; p.life--;
+    if(p.life<=0) particles.splice(i,1);
+  }
+}
+
+function rect(a,b){
+  return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y;
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+function openQuiz(qi){
+  const lvl=LEVELS[lvlIdx];
+  if(qi>=lvl.qs.length) return;
+  curQ=lvl.qs[qi]; quizOpen=true;
+
+  document.getElementById('quizTitle').textContent=`${lvl.name} · ${curQ.r}`;
+  document.getElementById('quizQ').textContent=curQ.t;
+  document.getElementById('quizExp').style.display='none';
+  document.getElementById('quizCont').style.display='none';
+
+  const opts=document.getElementById('quizOpts');
+  opts.innerHTML='';
+  curQ.o.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='obtn'; b.textContent=txt;
+    b.onclick=()=>answer(i,b);
+    opts.appendChild(b);
+  });
+
+  document.getElementById('quiz').style.display='block';
+}
+
+function answer(i,btn){
+  if(!curQ) return;
+  const right=i===curQ.c;
+  qAnswered++;
+
+  document.querySelectorAll('.obtn').forEach((b,j)=>{
+    b.disabled=true;
+    if(j===curQ.c) b.classList.add('ok');
+    else if(j===i && !right) b.classList.add('bad');
+  });
+
+  const exp=document.getElementById('quizExp');
+  exp.textContent=(right?'✓ Correto! ':'✗ Errado. ')+curQ.e;
+  exp.style.display='block';
+  document.getElementById('quizCont').style.display='block';
+
+  if(right){ qCorrect++; score+=100; boom(pl.x+pl.w/2,pl.y,'#FFD700',12); }
+  else { score=Math.max(0,score-20); }
+}
+
+function closeQuiz(){
+  document.getElementById('quiz').style.display='none';
+  quizOpen=false; curQ=null;
+}
+
+// ─── DRAW ─────────────────────────────────────────────────────────────────────
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  if(state==='title'){drawTitle();return;}
+  if(state==='over'){drawOver();return;}
+  if(state==='win'){drawWin();return;}
+  if(state==='lvlEnd'){drawLvlEnd();return;}
+
+  const lvl=LEVELS[lvlIdx];
+
+  // Sky gradient
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,lvl.bg);
+  grad.addColorStop(1, darken(lvl.bg,40));
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+
+  drawClouds(lvl.cloud);
+
+  ctx.save(); ctx.translate(-camX,0);
+
+  // Platforms
+  for(const p of platforms){
+    if(p.pole){
+      ctx.fillStyle='#999'; ctx.fillRect(p.x,p.y,p.w,p.h);
+      // Flag
+      const done=qAnswered>=LEVELS[lvlIdx].qs.length;
+      ctx.fillStyle=done?'#00DD00':'#DD0000';
+      ctx.beginPath(); ctx.moveTo(p.x+p.w,p.y); ctx.lineTo(p.x+p.w+48,p.y+22); ctx.lineTo(p.x+p.w,p.y+44); ctx.fill();
+      continue;
+    }
+    if(p.ground){
+      ctx.fillStyle=lvl.groundBase; ctx.fillRect(p.x,p.y,p.w,p.h);
+      ctx.fillStyle=lvl.groundColor; ctx.fillRect(p.x,p.y,p.w,16);
+      // Ground texture
+      ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=1;
+      for(let bx=p.x;bx<p.x+p.w;bx+=40){
+        ctx.beginPath(); ctx.moveTo(bx,p.y+16); ctx.lineTo(bx,p.y+p.h); ctx.stroke();
+      }
+    } else {
+      ctx.fillStyle='#cc7733'; ctx.fillRect(p.x,p.y,p.w,p.h);
+      ctx.fillStyle='#aa5511'; ctx.fillRect(p.x,p.y,p.w,5);
+      // Brick lines
+      ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1;
+      for(let bx=p.x;bx<p.x+p.w;bx+=25){
+        ctx.beginPath(); ctx.moveTo(bx,p.y); ctx.lineTo(bx,p.y+p.h); ctx.stroke();
+      }
+    }
+  }
+
+  // Question blocks
+  for(const qb of qblocks){
+    const by=qb.bounce>0?qb.y-qb.bounce*0.8:qb.y;
+    if(qb.hit){
+      ctx.fillStyle='#7a5533'; ctx.fillRect(qb.x,by,qb.w,qb.h);
+      ctx.strokeStyle='#553311'; ctx.lineWidth=2; ctx.strokeRect(qb.x,by,qb.w,qb.h);
+    } else {
+      // Pulsing ? block
+      const pulse=Math.sin(Date.now()/400)*3;
+      ctx.fillStyle='#FFB800'; ctx.fillRect(qb.x,by-pulse,qb.w,qb.h);
+      ctx.fillStyle='#FF8800';
+      ctx.fillRect(qb.x,by-pulse,qb.w,5);
+      ctx.fillRect(qb.x,by-pulse+qb.h-5,qb.w,5);
+      ctx.fillRect(qb.x,by-pulse,5,qb.h);
+      ctx.fillRect(qb.x+qb.w-5,by-pulse,5,qb.h);
+      ctx.fillStyle='#993300';
+      ctx.font='bold 26px serif'; ctx.textAlign='center';
+      ctx.fillText('?',qb.x+qb.w/2,by-pulse+qb.h*0.72);
+    }
+  }
+
+  // Coins
+  for(const c of coins){
+    if(!c.done){
+      const bob=Math.sin(Date.now()/600+c.x)*3;
+      ctx.fillStyle='#FFD700';
+      ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#FFB800';
+      ctx.beginPath(); ctx.arc(c.x-2,c.y+bob-2,3,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#CC8800'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.stroke();
+    }
+  }
+
+  // Particles
+  for(const p of particles){
+    ctx.globalAlpha=p.life/p.maxLife;
+    ctx.fillStyle=p.col;
+    ctx.fillRect(p.x-3,p.y-3,6,6);
+  }
+  ctx.globalAlpha=1;
+
+  // Player
+  drawMario(pl.x,pl.y,pl.dir,pl.wf,pl.ground,pl.vy);
+
+  ctx.restore();
+
+  drawHUD();
+
+  // Instruction banner
+  if(!quizOpen){
+    const pending=LEVELS[lvlIdx].qs.length-qAnswered;
+    if(pending>0){
+      ctx.fillStyle='rgba(0,0,0,0.65)';
+      roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
+      ctx.fillStyle='#FFD700'; ctx.font='13px Courier New'; ctx.textAlign='center';
+      ctx.fillText(`Encontre os blocos ? : ${pending} pergunta${pending>1?'s':''} restante${pending>1?'s':''}`,W/2,H-17);
+    } else {
+      ctx.fillStyle='rgba(0,100,0,0.75)';
+      roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
+      ctx.fillStyle='#AAFFAA'; ctx.font='13px Courier New'; ctx.textAlign='center';
+      ctx.fillText('Chegue à bandeira verde para avançar! ▶',W/2,H-17);
+    }
+  }
+}
+
+function drawMario(x,y,dir,wf,onG,vy){
+  ctx.save();
+  if(dir<0){ ctx.translate(x+16,0); ctx.scale(-1,1); x=0; }
+  else { ctx.translate(x,0); x=0; }
+
+  // Shoes
+  const lly = onG && wf===1 ? 2 : onG && wf===2 ? -2 : 0;
+  ctx.fillStyle='#5a2800';
+  ctx.fillRect(x,   y+36, 14, 8);   // left shoe
+  ctx.fillRect(x+18,y+36-lly, 14, 8); // right shoe
+
+  // Legs
+  ctx.fillStyle='#0033aa';
+  ctx.fillRect(x+2, y+28, 10, 12);
+  ctx.fillRect(x+20,y+28+lly, 10, 12);
+
+  // Overalls bib
+  ctx.fillStyle='#0033aa';
+  ctx.fillRect(x+8, y+16, 16, 8);
+  // Straps
+  ctx.fillRect(x+7, y+12, 4, 8);
+  ctx.fillRect(x+21,y+12, 4, 8);
+
+  // Body (shirt)
+  ctx.fillStyle='#cc0000';
+  ctx.fillRect(x+2, y+14, 28, 16);
+
+  // Head (skin)
+  ctx.fillStyle='#ffcc88';
+  ctx.fillRect(x+6, y+1, 20, 14);
+
+  // Hat
+  ctx.fillStyle='#cc0000';
+  ctx.fillRect(x+4, y-8, 24, 10);
+  ctx.fillRect(x+2, y+1, 28, 4);
+
+  // Hair under hat
+  ctx.fillStyle='#884400';
+  ctx.fillRect(x+6, y+1, 20, 3);
+
+  // Eyes
+  ctx.fillStyle='#111';
+  ctx.fillRect(x+18,y+4, 5, 5);
+
+  // Nose
+  ctx.fillStyle='#dd9966';
+  ctx.fillRect(x+21,y+9, 5, 3);
+
+  // Mustache
+  ctx.fillStyle='#884400';
+  ctx.fillRect(x+11,y+10, 14, 4);
+
+  // Buttons
+  ctx.fillStyle='#FFD700';
+  ctx.fillRect(x+11,y+17, 4, 4);
+  ctx.fillRect(x+17,y+17, 4, 4);
+
+  // Arms
+  ctx.fillStyle='#cc0000';
+  ctx.fillRect(x-2, y+14, 6, 10);
+  ctx.fillRect(x+28,y+14, 6, 10);
+
+  // Hands (skin)
+  ctx.fillStyle='#ffcc88';
+  ctx.fillRect(x-3, y+22, 6, 6);
+  ctx.fillRect(x+29,y+22, 6, 6);
+
+  ctx.restore();
+}
+
+function drawClouds(col){
+  const t=Date.now()/20000;
+  [[120,60],[320,40],[580,70],[150,110],[450,55],[700,80]].forEach(([cx,cy],i)=>{
+    const x=((cx - camX*(0.15+i*0.02))%W+W*2)%W - 40;
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    ctx.arc(x,cy,22,0,Math.PI*2);
+    ctx.arc(x+28,cy-8,26,0,Math.PI*2);
+    ctx.arc(x+56,cy,22,0,Math.PI*2);
+    ctx.fill();
+  });
+}
+
+function drawHUD(){
+  ctx.fillStyle='rgba(0,0,0,0.72)';
+  ctx.fillRect(0,0,W,44);
+
+  // Lives (hearts drawn with canvas)
+  for(let i=0;i<3;i++){
+    const hx=14+i*28, hy=14;
+    const alive=i<lives;
+    drawHeart(hx,hy,alive?'#ff3355':'#553344');
+  }
+
+  // Score
+  ctx.fillStyle='#FFD700'; ctx.font='bold 16px Courier New'; ctx.textAlign='center';
+  ctx.fillText('PONTOS: '+score,W/2,28);
+
+  // Level name
+  ctx.fillStyle='#aaffaa'; ctx.font='12px Courier New'; ctx.textAlign='right';
+  ctx.fillText('Fase '+(lvlIdx+1)+': '+LEVELS[lvlIdx].name,W-10,17);
+  ctx.fillStyle='#FFD700';
+  ctx.fillText('Perguntas: '+qAnswered+'/'+LEVELS[lvlIdx].qs.length,W-10,34);
+}
+
+function drawHeart(x,y,col){
+  ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.arc(x+5,y+4,5,Math.PI,0);
+  ctx.arc(x+15,y+4,5,Math.PI,0);
+  ctx.lineTo(x+20,y+9);
+  ctx.lineTo(x+10,y+20);
+  ctx.lineTo(x,y+9);
+  ctx.closePath(); ctx.fill();
+}
+
+function drawTitle(){
+  // Gradient sky
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#2255bb'); g.addColorStop(1,'#87CEEB');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  // Ground
+  ctx.fillStyle='#228B22'; ctx.fillRect(0,H-80,W,20);
+  ctx.fillStyle='#8B4513'; ctx.fillRect(0,H-60,W,60);
+
+  // ? blocks deco
+  [-120,-60,0,60].forEach((ox,i)=>{
+    const bx=W/2+ox-20, by=H-190;
+    ctx.fillStyle=i%2===0?'#FFB800':'#cc7733';
+    ctx.fillRect(bx,by,40,40);
+    ctx.fillStyle=i%2===0?'#FF8800':'#aa5522';
+    ctx.strokeStyle='rgba(0,0,0,0.3)'; ctx.lineWidth=2; ctx.strokeRect(bx,by,40,40);
+    if(i%2===0){
+      ctx.fillStyle='#993300'; ctx.font='bold 28px serif'; ctx.textAlign='center';
+      ctx.fillText('?',bx+20,by+30);
+    }
+  });
+
+  // Mario on title
+  drawMario(W/2-16,H-160,1,0,true,0);
+
+  // Title text
+  ctx.shadowColor='#ffaa00'; ctx.shadowBlur=18;
+  ctx.fillStyle='#FFD700'; ctx.font='bold 58px serif'; ctx.textAlign='center';
+  ctx.fillText('SÍLABA QUEST',W/2,90);
+  ctx.shadowBlur=0;
+
+  ctx.fillStyle='#fff'; ctx.font='20px serif';
+  ctx.fillText('A Aventura das Palavras',W/2,125);
+
+  ctx.fillStyle='#FFEEAA'; ctx.font='14px Courier New';
+  ctx.fillText('Divisão Silábica & Acentuação Gráfica · 1.º Ano EM',W/2,158);
+
+  // Level list
+  ctx.textAlign='left';
+  LEVELS.forEach((l,i)=>{
+    ctx.fillStyle=i<lvlIdx?'#44ff88':i===lvlIdx?'#FFD700':'#cccccc';
+    ctx.font=(i===lvlIdx?'bold ':'')+'13px Courier New';
+    ctx.fillText('  Fase '+(i+1)+': '+l.name, W/2-150, 196+i*22);
+  });
+
+  // Blink
+  if(Math.floor(Date.now()/550)%2){
+    ctx.fillStyle='#FFD700'; ctx.font='bold 19px Courier New'; ctx.textAlign='center';
+    ctx.fillText('► ENTER ou ESPAÇO para jogar ◄',W/2,H-90);
+  }
+  ctx.fillStyle='#aaa'; ctx.font='13px Courier New';
+  ctx.fillText('← → Mover  |  ↑ / Espaço Pular',W/2,H-65);
+}
+
+function drawLvlEnd(){
+  ctx.fillStyle='rgba(0,0,30,0.95)'; ctx.fillRect(0,0,W,H);
+
+  ctx.shadowColor='#FFD700'; ctx.shadowBlur=20;
+  ctx.fillStyle='#FFD700'; ctx.font='bold 44px serif'; ctx.textAlign='center';
+  ctx.fillText('FASE COMPLETA!',W/2,100);
+  ctx.shadowBlur=0;
+
+  ctx.fillStyle='#aaffaa'; ctx.font='20px Courier New';
+  ctx.fillText(LEVELS[lvlIdx].name,W/2,140);
+
+  ctx.fillStyle='#fff'; ctx.font='17px Courier New';
+  ctx.fillText('Perguntas corretas: '+qCorrect+' / '+qAnswered,W/2,188);
+  ctx.fillText('Pontuação: '+score,W/2,218);
+
+  const pct=qAnswered>0?qCorrect/qAnswered:0;
+  const stars=pct>=0.8?3:pct>=0.6?2:1;
+  ctx.font='42px serif';
+  ctx.fillText('⭐'.repeat(stars)+'☆'.repeat(3-stars),W/2,270);
+
+  if(lvlIdx<LEVELS.length-1){
+    ctx.fillStyle='#FFD700'; ctx.font='15px Courier New';
+    ctx.fillText('Próxima: Fase '+(lvlIdx+2)+' — '+LEVELS[lvlIdx+1].name,W/2,320);
+  }
+  if(Math.floor(Date.now()/550)%2){
+    ctx.fillStyle='#aaffff'; ctx.font='bold 18px Courier New';
+    ctx.fillText(lvlIdx<LEVELS.length-1?'► ENTER para continuar':'► ENTER para ver resultado final',W/2,H-55);
+  }
+}
+
+function drawOver(){
+  ctx.fillStyle='rgba(60,0,0,0.97)'; ctx.fillRect(0,0,W,H);
+  ctx.shadowColor='#ff0000'; ctx.shadowBlur=20;
+  ctx.fillStyle='#ff4444'; ctx.font='bold 66px serif'; ctx.textAlign='center';
+  ctx.fillText('GAME OVER',W/2,170);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#fff'; ctx.font='18px Courier New';
+  ctx.fillText('Pontuação: '+score,W/2,240);
+  ctx.fillStyle='#ffaa44'; ctx.font='15px Courier New';
+  ctx.fillText('Revise o conteúdo e tente novamente!',W/2,285);
+  if(Math.floor(Date.now()/550)%2){
+    ctx.fillStyle='#FFD700'; ctx.font='bold 18px Courier New';
+    ctx.fillText('► ENTER para reiniciar',W/2,H-60);
+  }
+}
+
+function drawWin(){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#002200'); g.addColorStop(1,'#004400');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  ctx.shadowColor='#FFD700'; ctx.shadowBlur=25;
+  ctx.fillStyle='#FFD700'; ctx.font='bold 56px serif'; ctx.textAlign='center';
+  ctx.fillText('PARABÉNS!',W/2,90);
+  ctx.shadowBlur=0;
+
+  ctx.fillStyle='#aaffaa'; ctx.font='19px Courier New';
+  ctx.fillText('Você dominou todo o conteúdo!',W/2,135);
+
+  ctx.fillStyle='#fff'; ctx.font='14px Courier New';
+  ['✓ Regras de Divisão Silábica (Regras 1 a 10)',
+   '✓ Observações de Divisão Silábica',
+   '✓ Acentuação Gráfica — Regras Gerais',
+   '✓ Acentuação Gráfica — Regras Especiais',
+   '✓ Dicas de Acentuação Gráfica'
+  ].forEach((l,i)=>{ ctx.fillText(l,W/2,178+i*26); });
+
+  ctx.fillStyle='#FFD700'; ctx.font='bold 17px Courier New';
+  ctx.fillText('Pontuação final: '+score,W/2,325);
+  ctx.font='44px serif';
+  ctx.fillText('⭐⭐⭐',W/2,375);
+
+  if(Math.floor(Date.now()/550)%2){
+    ctx.fillStyle='#aaffff'; ctx.font='16px Courier New';
+    ctx.fillText('ENTER para jogar novamente',W/2,H-22);
+  }
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function darken(hex,pct){
+  const n=parseInt(hex.slice(1),16);
+  const r=Math.max(0,((n>>16)&255)-pct);
+  const g=Math.max(0,((n>>8)&255)-pct);
+  const b=Math.max(0,(n&255)-pct);
+  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+// ─── LOOP ─────────────────────────────────────────────────────────────────────
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+loop();
+</script>
+</body>
+</html>
