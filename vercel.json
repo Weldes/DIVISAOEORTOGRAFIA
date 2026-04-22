@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "name": "silaba-quest",
+  "builds": [
+    {
+      "src": "silaba-quest/index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/silaba-quest/index.html"
+    }
+  ]
+}
