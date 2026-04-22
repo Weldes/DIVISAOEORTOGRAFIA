@@ -5,9 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sílaba Quest — A Aventura das Palavras</title>
 
-<!-- Firebase SDK (Banco de dados) -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<!-- Supabase SDK (Banco de dados) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -160,49 +159,38 @@ canvas { display:block; }
 
 <script>
 // ════════════════════════════════════════════════════════════════════════
-//  ⚙️  CONFIGURAÇÃO DO FIREBASE
-//  1. Acesse https://console.firebase.google.com
-//  2. Crie um projeto → Adicione um app Web
-//  3. Copie os dados do firebaseConfig e cole aqui abaixo
-//  4. No Firebase Console, vá em Firestore Database → Criar banco de dados
-//  5. Nas Regras do Firestore, coloque: allow read, write: if true;
+//  ⚙️  CONFIGURAÇÃO DO SUPABASE
+//  1. Acesse https://supabase.com → crie um projeto gratuito
+//  2. Vá em Project Settings → API
+//  3. Cole o "Project URL" e o "anon public key" abaixo
 // ════════════════════════════════════════════════════════════════════════
-const FIREBASE_CONFIG = {
-  apiKey:            "COLE_AQUI",
-  authDomain:        "COLE_AQUI",
-  projectId:         "COLE_AQUI",
-  storageBucket:     "COLE_AQUI",
-  messagingSenderId: "COLE_AQUI",
-  appId:             "COLE_AQUI"
-};
+const SUPABASE_URL  = "COLE_AQUI";   // ex: https://xyzxyz.supabase.co
+const SUPABASE_KEY  = "COLE_AQUI";   // anon public key
 
-// ── Inicialização Firebase ────────────────────────────────────────────
-let db = null;
-const FB_READY = FIREBASE_CONFIG.apiKey !== "COLE_AQUI";
-if(FB_READY){
-  firebase.initializeApp(FIREBASE_CONFIG);
-  db = firebase.firestore();
-}
+// ── Inicialização Supabase ────────────────────────────────────────────
+const SB_READY = SUPABASE_URL !== "COLE_AQUI";
+const supa = SB_READY ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 // ── Funções de banco de dados ─────────────────────────────────────────
 async function dbSaveScore(nome, turma, pontuacao, fases){
-  if(!FB_READY){ localSave(nome,turma,pontuacao,fases); return; }
+  if(!SB_READY){ localSave(nome,turma,pontuacao,fases); return; }
   try {
-    await db.collection('ranking').add({
-      nome, turma, pontuacao, fases,
-      data: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  } catch(e){ console.warn('Firebase erro:', e); localSave(nome,turma,pontuacao,fases); }
+    const { error } = await supa.from('ranking').insert({ nome, turma, pontuacao, fases });
+    if(error) throw error;
+  } catch(e){ console.warn('Supabase erro:', e); localSave(nome,turma,pontuacao,fases); }
 }
 
 async function dbLoadRanking(){
-  if(!FB_READY){ return localLoad(); }
+  if(!SB_READY){ return localLoad(); }
   try {
-    const snap = await db.collection('ranking')
-      .orderBy('pontuacao','desc').limit(20).get();
-    return snap.docs.map(d => ({ id:d.id, ...d.data(),
-      dataStr: d.data().data ? fmtDate(d.data().data.toDate()) : '—' }));
-  } catch(e){ console.warn('Firebase erro:', e); return localLoad(); }
+    const { data, error } = await supa
+      .from('ranking')
+      .select('*')
+      .order('pontuacao', { ascending: false })
+      .limit(20);
+    if(error) throw error;
+    return data.map(r => ({ ...r, dataStr: fmtDate(new Date(r.created_at)) }));
+  } catch(e){ console.warn('Supabase erro:', e); return localLoad(); }
 }
 
 // ── Fallback LocalStorage ─────────────────────────────────────────────
@@ -464,10 +452,10 @@ async function loadAndRenderRanking(){
     });
   }
   document.getElementById('rankTable').style.display='table';
-  if(!FB_READY){
+  if(!SB_READY){
     const msg=document.createElement('p');
     msg.style.cssText='font-size:11px;color:#666;text-align:center;margin-top:10px';
-    msg.textContent='⚠ Modo local (Firebase não configurado) — ranking apenas neste dispositivo.';
+    msg.textContent='⚠ Modo local (Supabase não configurado) — ranking apenas neste dispositivo.';
     document.getElementById('rankTable').after(msg);
   }
 }
