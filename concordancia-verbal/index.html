@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concordância Quest — 3º Ano B</title>
+
+<!-- Supabase SDK (Banco de dados) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#0d1117;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  min-height:100vh;
+  font-family:'Courier New',monospace;
+  overflow:hidden;
+}
+#wrap { position:relative; box-shadow:0 0 40px rgba(100,200,255,0.3); border-radius:4px; overflow:hidden; }
+canvas { display:block; }
+
+/* ── OVERLAY BASE ─────────────────────────────────── */
+.overlay {
+  display:none; position:absolute; top:0; left:0; width:100%; height:100%;
+  background:rgba(4,4,18,0.96);
+  flex-direction:column; align-items:center; justify-content:center;
+  z-index:30;
+}
+.overlay.show { display:flex; }
+.panel {
+  border:2px solid #64C8FF; border-radius:14px;
+  padding:28px 32px; width:520px; max-width:95%;
+  background:rgba(10,10,30,0.98); color:#fff;
+}
+.panel h2 { color:#64C8FF; text-align:center; font-size:18px; margin-bottom:20px; letter-spacing:1px; }
+.panel h3 { color:#aaffaa; text-align:center; font-size:13px; margin-bottom:16px; }
+.panel label { display:block; font-size:12px; color:#aaa; margin-bottom:5px; margin-top:14px; }
+.panel input {
+  width:100%; padding:10px 12px; background:#1a1a3a;
+  border:1.5px solid #555; border-radius:8px;
+  color:#fff; font-size:15px; font-family:'Courier New',monospace;
+  outline:none; transition:border-color .2s;
+}
+.panel input:focus { border-color:#64C8FF; }
+.btn-blue {
+  display:block; width:100%; margin-top:20px; padding:13px;
+  background:#64C8FF; color:#000; border:none; border-radius:8px;
+  font-size:16px; font-weight:bold; cursor:pointer;
+  font-family:'Courier New',monospace; letter-spacing:1px;
+  transition:background .15s;
+}
+.btn-blue:hover { background:#8adcff; }
+.btn-ghost {
+  display:block; width:100%; margin-top:10px; padding:10px;
+  background:transparent; color:#888; border:1.5px solid #444; border-radius:8px;
+  font-size:13px; cursor:pointer; font-family:'Courier New',monospace;
+  transition:color .15s, border-color .15s;
+}
+.btn-ghost:hover { color:#64C8FF; border-color:#64C8FF; }
+.err { color:#ff6666; font-size:12px; text-align:center; margin-top:8px; min-height:18px; }
+
+/* ── QUIZ ─────────────────────────────────────────── */
+#quiz {
+  display:none; position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(5,5,20,0.97); border:3px solid #64C8FF;
+  border-radius:14px; padding:22px 24px 18px;
+  width:700px; max-width:96%; z-index:20; color:#fff;
+}
+#quiz h2 { color:#64C8FF; text-align:center; font-size:15px; margin-bottom:12px; letter-spacing:1px; }
+#quizQ { font-size:17px; text-align:center; line-height:1.5; margin-bottom:16px; color:#eee; }
+#quizOpts { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.obtn {
+  padding:11px 10px; border:2px solid #64C8FF; background:transparent;
+  color:#fff; font-size:14px; cursor:pointer; border-radius:8px;
+  font-family:'Courier New',monospace; transition:background .15s,color .15s; text-align:center;
+}
+.obtn:hover:not(:disabled) { background:#64C8FF; color:#000; }
+.obtn.ok  { background:#1a7a1a; border-color:#1a7a1a; cursor:default; }
+.obtn.bad { background:#7a1a1a; border-color:#7a1a1a; cursor:default; }
+#quizExp {
+  display:none; margin-top:12px; padding:10px 12px;
+  background:rgba(100,200,255,0.08); border-left:3px solid #64C8FF;
+  border-radius:6px; font-size:13px; color:#64C8FF; line-height:1.5;
+}
+#quizCont {
+  display:none; margin-top:12px; width:100%; padding:11px;
+  background:#64C8FF; color:#000; border:none; border-radius:8px;
+  font-size:15px; font-weight:bold; cursor:pointer;
+  font-family:'Courier New',monospace; letter-spacing:1px;
+}
+#quizCont:hover { background:#8adcff; }
+
+/* ── RANKING TABLE ────────────────────────────────── */
+#rankTable { width:100%; border-collapse:collapse; margin-top:8px; }
+#rankTable th {
+  background:#64C8FF; color:#000; padding:7px 10px;
+  font-size:12px; text-align:left; font-family:'Courier New',monospace;
+}
+#rankTable td {
+  padding:6px 10px; font-size:13px; border-bottom:1px solid #2a2a4a;
+}
+#rankTable tr:nth-child(even) td { background:rgba(255,255,255,0.04); }
+#rankTable tr.me td { background:rgba(100,200,255,0.12); color:#64C8FF; font-weight:bold; }
+.medal { font-size:16px; }
+#rankLoading { text-align:center; color:#888; padding:20px; font-size:13px; }
+
+/* ── HINT ─────────────────────────────────────────── */
+#hint { margin-top:8px; color:#555; font-size:12px; text-align:center; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" width="800" height="450"></canvas>
+
+  <!-- QUIZ -->
+  <div id="quiz">
+    <h2 id="quizTitle"></h2>
+    <div id="quizQ"></div>
+    <div id="quizOpts"></div>
+    <div id="quizExp"></div>
+    <button id="quizCont" onclick="closeQuiz()">▶ Continuar aventura!</button>
+  </div>
+
+  <!-- CADASTRO -->
+  <div class="overlay" id="ovReg">
+    <div class="panel">
+      <h2>🎮 Identificação do Aluno</h2>
+      <h3>Turma: 3º Ano B — Concordância Verbal</h3>
+      <label>Nome completo</label>
+      <input id="inNome" type="text" placeholder="Ex: João da Silva" maxlength="40" autocomplete="off">
+      <label>Turma</label>
+      <input id="inTurma" type="text" placeholder="Ex: 3B" maxlength="10" autocomplete="off" value="3B">
+      <p class="err" id="regErr"></p>
+      <button class="btn-blue" onclick="submitReg()">▶ Começar a jogar!</button>
+      <button class="btn-ghost" onclick="showRanking(true)">🏆 Ver Ranking antes de jogar</button>
+    </div>
+  </div>
+
+  <!-- RANKING -->
+  <div class="overlay" id="ovRank">
+    <div class="panel" style="width:600px">
+      <h2>🏆 Ranking — Melhores Pontuações</h2>
+      <div id="rankLoading">Carregando...</div>
+      <table id="rankTable" style="display:none">
+        <thead><tr>
+          <th>#</th><th>Aluno</th><th>Turma</th><th>Pontos</th><th>Fases</th><th>Data</th>
+        </tr></thead>
+        <tbody id="rankBody"></tbody>
+      </table>
+      <button class="btn-blue" id="rankPlayBtn" onclick="closeRanking()" style="margin-top:16px">▶ Jogar</button>
+      <button class="btn-ghost" onclick="closeRanking()">✕ Fechar</button>
+    </div>
+  </div>
+</div>
+<p id="hint">← → Mover &nbsp;|&nbsp; ↑ / Espaço Pular &nbsp;|&nbsp; Responda os blocos ? para avançar!</p>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+//  ⚙️  CONFIGURAÇÃO DO SUPABASE
+// ════════════════════════════════════════════════════════════════════════
+const SUPABASE_URL  = "https://nsasvwiyaxuvozrrpmgy.supabase.co";
+const SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zYXN2d2l5YXh1dm96cnJwbWd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4MTMxNDMsImV4cCI6MjA5MjM4OTE0M30.WoTYnhLEqOQwujOxXKGGxK6fb7H5xYXfnB4ZzjoDPXw";
+
+const SB_READY = SUPABASE_URL !== "COLE_AQUI";
+const supa = SB_READY ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+async function dbSaveScore(nome, turma, pontuacao, fases){
+  if(!SB_READY){ localSave(nome,turma,pontuacao,fases); return; }
+  try {
+    const { error } = await supa.from('ranking_concordancia').insert({ nome, turma, pontuacao, fases });
+    if(error) throw error;
+  } catch(e){ console.warn('Supabase erro:', e); localSave(nome,turma,pontuacao,fases); }
+}
+
+async function dbLoadRanking(){
+  if(!SB_READY){ return localLoad(); }
+  try {
+    const { data, error } = await supa
+      .from('ranking_concordancia')
+      .select('*')
+      .order('pontuacao', { ascending: false })
+      .limit(20);
+    if(error) throw error;
+    return data.map(r => ({ ...r, dataStr: fmtDate(new Date(r.created_at)) }));
+  } catch(e){ console.warn('Supabase erro:', e); return localLoad(); }
+}
+
+function localSave(nome,turma,pontuacao,fases){
+  const all = localLoad();
+  all.push({ nome, turma, pontuacao, fases, dataStr: fmtDate(new Date()) });
+  all.sort((a,b)=>b.pontuacao-a.pontuacao);
+  localStorage.setItem('concverb_ranking', JSON.stringify(all.slice(0,50)));
+}
+function localLoad(){
+  try { return JSON.parse(localStorage.getItem('concverb_ranking')||'[]'); }
+  catch{ return []; }
+}
+function fmtDate(d){
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  CONTEÚDO — 5 FASES — CONCORDÂNCIA VERBAL (3º ANO B)
+// ════════════════════════════════════════════════════════════════════════
+const LEVELS = [
+  {
+    name:"Regra Geral e Sujeito Composto", bg:"#0a2a1a",
+    groundColor:"#1a6b2a", groundBase:"#0a3a14", cloud:"rgba(180,255,200,0.5)",
+    qs:[
+      { t:"Qual a regra geral de concordância verbal?",
+        r:"Regra Geral — Sujeito Simples",
+        o:["O verbo nunca varia em número","O verbo concorda com o núcleo do sujeito em número e pessoa","O verbo sempre fica no singular","O verbo concorda apenas com a pessoa"], c:1,
+        e:"Regra Geral: o verbo concorda com o núcleo do sujeito em número e pessoa. Ex.: Duas pessoas duvidaram de que você viria." },
+      { t:"'Brasil e China ___ de sediar o evento.' Sujeito composto ANTEPOSTO: qual a regra?",
+        r:"Sujeito Composto — Anteposto ao verbo",
+        o:["Verbo no singular","Verbo concorda com o mais próximo","Verbo deve ser empregado no plural","Qualquer número é correto"], c:2,
+        e:"Sujeito composto anteposto ao verbo: o verbo deve ser empregado no plural. Brasil e China HÃO DE sediar o evento." },
+      { t:"'Chegou / chegaram Manoel e sua família.' Sujeito composto POSPOSTO: o que é correto?",
+        r:"Sujeito Composto — Posposto ao verbo",
+        o:["Só pode ser no plural","Só pode ser no singular","Verbo no plural OU concorda com o referente mais próximo","Verbo sempre no singular"], c:2,
+        e:"Sujeito composto posposto: verbo no plural OU concorda com o referente mais próximo. Chegou Manoel (+ próximo) ou Chegaram Manoel e família." },
+      { t:"'___ necessário que haja superávit primário.' Sujeito ORACIONAL: qual a regra?",
+        r:"Regra do Sujeito Oracional",
+        o:["É — verbo deve ficar no singular","São — verbo deve ficar no plural","Verbo concorda com o sujeito da oração subordinada","Qualquer número é aceito"], c:0,
+        e:"Sujeito oracional: o verbo deve ficar no singular. É necessário que haja superávit. Convém que o aluno estude gramática." },
+      { t:"'O parlamentar e seu companheiro ___ citados no processo.' Qual a forma correta?",
+        r:"Sujeito Composto Anteposto — Plural",
+        o:["foi","é","foram","fora"], c:2,
+        e:"Sujeito composto (O parlamentar E seu companheiro) anteposto ao verbo exige plural: FORAM citados no processo." },
+    ]
+  },
+  {
+    name:"Expressões Partitivas e Porcentagem", bg:"#1a1a3a",
+    groundColor:"#3a3a8a", groundBase:"#1a1a5a", cloud:"rgba(180,180,255,0.5)",
+    qs:[
+      { t:"'Grande parte dos jogadores ___ uma preparação intensa.' Qual é a regra?",
+        r:"Sujeito com Expressão Partitiva + nome no plural",
+        o:["Só singular: fez","Só plural: fizeram","Singular OU plural: fez / fizeram","Depende do contexto semântico"], c:2,
+        e:"Expressão partitiva (grande parte, a maioria, metade...) seguida de nome no plural: verbo no singular OU no plural. Fez/Fizeram uma preparação intensa." },
+      { t:"'Cerca de 50% das pessoas ___ a prova.' Qual o verbo correto?",
+        r:"Expressão de Quantidade Aproximada + porcentagem",
+        o:["gabaritou — concorda com 50%","gabaritaram — concorda com pessoas","podem gabaritar","qualquer forma é aceita"], c:1,
+        e:"Quantidade aproximada + porcentagem: verbo concorda com o substantivo na expressão. '...das PESSOAS' → plural: gabaritAREM." },
+      { t:"'Minas Gerais ___ cultura.' Nome geográfico SEM artigo ou com artigo no singular:",
+        r:"Sujeito com Substantivo Plural — sem artigo",
+        o:["exportam","exporta","exportarão","exportamos"], c:1,
+        e:"Substantivo plural sem artigo ou com artigo no singular → verbo no singular. Minas Gerais EXPORTA cultura. O Amazonas É vasto." },
+      { t:"'Os Estados Unidos ___ no conflito.' Nome geográfico COM artigo no plural:",
+        r:"Sujeito com Substantivo Plural — com artigo no plural",
+        o:["entrou","entra","entraram","entrará"], c:2,
+        e:"Substantivo plural com artigo no plural → verbo no plural. Os Estados Unidos ENTRARAM no conflito." },
+      { t:"'50% ___ a prova.' Porcentagem SEM substantivo: qual a regra?",
+        r:"Porcentagem sem substantivo",
+        o:["Sempre no singular","Verbo concorda com a noção de quantidade (plural)","Verbo no singular pois 50% é um número","Depende do verbo usado"], c:1,
+        e:"Porcentagem sem substantivo: o verbo concorda com a noção de quantidade. 50% GABARITARAM a prova." },
+    ]
+  },
+  {
+    name:"Pronomes e Expressões Especiais", bg:"#2a0a3a",
+    groundColor:"#6a1a8a", groundBase:"#3a0a5a", cloud:"rgba(220,150,255,0.4)",
+    qs:[
+      { t:"'Quais de nós ___ a resposta?' Pronome interrogativo + pronome pessoal:",
+        r:"Pronome Interrogativo / Indefinido + Pronome Pessoal",
+        o:["Só: encontrarão","Só: encontraremos","encontrarão OU encontraremos","Sempre no singular"], c:2,
+        e:"Pronome interrogativo/indefinido no plural + pronome pessoal: pode concordar com qualquer um dos pronomes. Encontrarão OU encontraremos." },
+      { t:"'César foi um dos intelectuais que mais ___ a nova visão.' 'Um dos que':",
+        r:"Sujeito com a expressão 'um dos que'",
+        o:["apoiou — singular","apoiaram — plural","apoiaria — condicional","apoie — subjuntivo"], c:1,
+        e:"'Um dos que': o verbo deve ir para o plural. César foi um dos intelectuais que mais APOIARAM a nova visão." },
+      { t:"'Tragédia, catástrofe e incidente ___ o futuro daquele lugar.' Núcleos sinônimos:",
+        r:"Sujeito com Núcleos Sinônimos",
+        o:["Só: é","Só: são","é OU são — singular ou plural","Sempre no plural"], c:2,
+        e:"Núcleos sinônimos: verbo no singular OU no plural. Tragédia, catástrofe e incidente É / SÃO o futuro daquele lugar." },
+      { t:"'Um dia, um mês, uma vida de opressão ___ suficiente.' Núcleos em gradação:",
+        r:"Sujeito com Núcleos em Gradação",
+        o:["Só no plural: são suficientes","Plural OU concorda com o último núcleo: não é/são suficientes","Sempre no singular","Sempre no plural"], c:1,
+        e:"Núcleos em gradação: verbo no plural OU concorda com o último núcleo. ...uma vida de opressão NÃO É suficiente / NÃO SÃO suficientes." },
+      { t:"'Marina e eu ___ à festa.' Sujeito composto por pessoas gramaticais diferentes:",
+        r:"Pessoas Gramaticais Diferentes — plural predominante",
+        o:["vai","vão","vamos","foi"], c:2,
+        e:"Pessoas gramaticais diferentes: plural na pessoa predominante. Eu (1ª) + Marina (3ª) → 1ª pessoa do plural: VAMOS à festa." },
+    ]
+  },
+  {
+    name:"Conectivos Especiais e Sujeito", bg:"#2a1a00",
+    groundColor:"#8a4a00", groundBase:"#5a2a00", cloud:"rgba(255,200,100,0.35)",
+    qs:[
+      { t:"'A menina com sua mãe ___ a queixa.' Sujeito ligado por 'com' (sentido aditivo):",
+        r:"Sujeito composto com 'com' (sentido aditivo)",
+        o:["registrou — singular","registraram — plural","Só singular com vírgula","Verbo no infinitivo"], c:1,
+        e:"'Com' (sentido aditivo, sem vírgulas): verbo no plural. A menina com sua mãe REGISTRARAM a queixa. (Com vírgula → singular: A menina, com sua mãe, registrou.)" },
+      { t:"'Nem dinheiro nem fama ___ aquela menina.' Sujeito com 'nem':",
+        r:"Sujeito composto com 'nem'",
+        o:["encantava — singular","encantavam — plural usual","encantariam — condicional","encante — subjuntivo"], c:1,
+        e:"'Nem': não há consenso, mas o usual é empregar no plural. Nem dinheiro nem fama ENCANTAVAM aquela menina." },
+      { t:"'Cebola ou tomate ___ usados em qualquer almoço.' 'Ou' SEM exclusão:",
+        r:"Sujeito com 'ou' — sem exclusão de referente",
+        o:["deve ser — singular","devem ser — plural","pode ser","qualquer número"], c:1,
+        e:"'Ou' sem exclusão de referente (ambos podem ser usados): verbo no plural. Cebola ou tomate DEVEM SER usados." },
+      { t:"'Mariano ou Pedrito ___ o cargo dos sonhos.' 'Ou' COM exclusão:",
+        r:"Sujeito com 'ou' — com exclusão de referente",
+        o:["conquistarão — plural","conquistará — singular","conquistariam","conquiste"], c:1,
+        e:"'Ou' com exclusão (só um pode): verbo no singular. Mariano ou Pedrito CONQUISTARÁ o cargo dos sonhos." },
+      { t:"'Um ou outro ___ a matéria.' Expressão 'um ou outro':",
+        r:"Expressão 'um ou outro' — singular",
+        o:["entenderão — plural","entenderá — singular","entendem — plural","entenda — subjuntivo"], c:1,
+        e:"'Um ou outro': verbo deve ser empregado no singular. Dos meninos, um ou outro ENTENDERÁ a matéria explicada." },
+    ]
+  },
+  {
+    name:"Verbos Impessoais e Casos com SE", bg:"#0a0a0a",
+    groundColor:"#1a6a6a", groundBase:"#0a3a3a", cloud:"rgba(100,255,255,0.25)",
+    qs:[
+      { t:"'___ meios de conseguir a vitória.' Verbo HAVER (sentido de existir):",
+        r:"Verbo Haver — impessoal (existir/ocorrer/acontecer)",
+        o:["Há — singular (impessoal)","Hão — plural","Haverão — plural","Havem — plural"], c:0,
+        e:"Haver no sentido de existir/ocorrer/acontecer é impessoal: sempre no singular. HÁ meios. Deve HAVER livros. Atenção: Existir, ocorrer, acontecer TÊM sujeito e podem ir ao plural!" },
+      { t:"'___ duas semanas, comecei a estudar.' Haver/Fazer/Ir (tempo transcorrido):",
+        r:"Haver, Fazer, Ir — tempo transcorrido — singular",
+        o:["Hão — plural","Há — singular","Haverão — plural","Têm — plural"], c:1,
+        e:"Haver, fazer ou ir no sentido de tempo transcorrido: sempre no singular. HÁ duas semanas. FAZ três meses. VAI para três anos." },
+      { t:"'Daqui até ali ___ 60 metros.' Verbo SER (indicando distância):",
+        r:"Verbo Ser — concordância com o predicativo",
+        o:["é — concorda com 'daqui'","são — concorda com o núcleo 'metros'","será — futuro","fica — substitui o ser"], c:1,
+        e:"Verbo ser indicando tempo ou distância: concorda com o predicativo do sujeito. '60 metros' → SÃO 60 metros. 'É uma hora de avião' concorda com 'hora'." },
+      { t:"'Vendem-se sapatos.' O 'se' é apassivador. Qual a regra de concordância?",
+        r:"SE apassivador — verbo concorda com o sujeito paciente",
+        o:["Verbo no singular sempre","Verbo concorda com o sujeito paciente (sapatos → plural)","Verbo na 3ª pessoa do singular sempre","Verbo no infinitivo"], c:1,
+        e:"SE apassivador (= voz passiva): verbo concorda com o sujeito paciente. Sapatos (pl.) → VENDEM-se sapatos. Ofereceram-se prêmios ao vencedor." },
+      { t:"'Visava-se a cargos importantes.' O 'se' é índice de indeterminação. Qual a regra?",
+        r:"SE índice de indeterminação — 3ª pessoa do singular",
+        o:["Verbo no plural","Verbo na 3ª pessoa do singular sempre","Verbo concorda com o complemento","Verbo no infinitivo"], c:1,
+        e:"SE índice de indeterminação do sujeito: verbo sempre na 3ª pessoa do singular. Visava-SE. Não se FICA famoso sem esforço. Vive-SE feliz." },
+    ]
+  },
+];
+
+// ════════════════════════════════════════════════════════════════════════
+//  ESTADO GLOBAL
+// ════════════════════════════════════════════════════════════════════════
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+const W=800, H=450, LW=2800, GROUND_Y=H-60, G=0.55, JUMP=-13, SPD=4;
+
+let state='title';
+let lvlIdx=0, lives=3, score=0;
+let qAnswered=0, qCorrect=0;
+let platforms=[], qblocks=[], coins=[], particles=[];
+let camX=0, quizOpen=false, curQ=null;
+let afterRankingFrom='title';
+
+let playerName='', playerTurma='';
+let scoreSaved=false;
+
+const pl={x:80,y:GROUND_Y-44,w:32,h:44,vx:0,vy:0,ground:false,dir:1,wf:0,wt:0};
+const keys={};
+
+// ════════════════════════════════════════════════════════════════════════
+//  INPUT
+// ════════════════════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  keys[e.code]=true;
+  if(['Space','ArrowUp','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault();
+  if(e.code==='Enter'||e.code==='Space'){
+    if(state==='title') showReg();
+    if(state==='lvlEnd') doNextLevel();
+    if(state==='over'||state==='win') showReg();
+  }
+});
+document.addEventListener('keyup',e=>{ keys[e.code]=false; });
+
+document.getElementById('inNome').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('inTurma').focus(); });
+document.getElementById('inTurma').addEventListener('keydown',e=>{ if(e.key==='Enter') submitReg(); });
+
+// ════════════════════════════════════════════════════════════════════════
+//  CADASTRO
+// ════════════════════════════════════════════════════════════════════════
+function showReg(){
+  document.getElementById('ovReg').classList.add('show');
+  document.getElementById('inNome').focus();
+}
+
+function submitReg(){
+  const nome  = document.getElementById('inNome').value.trim();
+  const turma = document.getElementById('inTurma').value.trim();
+  const err   = document.getElementById('regErr');
+  if(!nome)  { err.textContent='Por favor, informe seu nome.'; return; }
+  if(!turma) { err.textContent='Por favor, informe sua turma.'; return; }
+  err.textContent='';
+  playerName=nome; playerTurma=turma;
+  document.getElementById('ovReg').classList.remove('show');
+  startGame();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  RANKING
+// ════════════════════════════════════════════════════════════════════════
+function showRanking(fromReg=false){
+  if(fromReg){
+    document.getElementById('ovReg').classList.remove('show');
+    afterRankingFrom='reg';
+  } else {
+    afterRankingFrom='title';
+  }
+  document.getElementById('rankPlayBtn').textContent =
+    afterRankingFrom==='reg' ? '▶ Voltar ao cadastro' : '▶ Jogar';
+  document.getElementById('rankLoading').style.display='block';
+  document.getElementById('rankTable').style.display='none';
+  document.getElementById('ovRank').classList.add('show');
+  loadAndRenderRanking();
+}
+
+function closeRanking(){
+  document.getElementById('ovRank').classList.remove('show');
+  if(afterRankingFrom==='reg') showReg();
+}
+
+async function loadAndRenderRanking(){
+  const rows = await dbLoadRanking();
+  document.getElementById('rankLoading').style.display='none';
+
+  const tbody = document.getElementById('rankBody');
+  tbody.innerHTML='';
+
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#888;padding:20px">Nenhuma pontuação registrada ainda.</td></tr>';
+  } else {
+    const medals=['🥇','🥈','🥉'];
+    rows.forEach((r,i)=>{
+      const isMe = playerName && r.nome===playerName && r.turma===playerTurma;
+      const tr=document.createElement('tr');
+      if(isMe) tr.className='me';
+      tr.innerHTML=`
+        <td>${i<3?'<span class="medal">'+medals[i]+'</span>':'#'+(i+1)}</td>
+        <td>${esc(r.nome)}</td>
+        <td>${esc(r.turma)}</td>
+        <td><strong>${r.pontuacao}</strong></td>
+        <td>${r.fases} fase${r.fases!==1?'s':''}</td>
+        <td>${r.dataStr||'—'}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+  document.getElementById('rankTable').style.display='table';
+  if(!SB_READY){
+    const msg=document.createElement('p');
+    msg.style.cssText='font-size:11px;color:#666;text-align:center;margin-top:10px';
+    msg.textContent='⚠ Modo local — ranking apenas neste dispositivo.';
+    document.getElementById('rankTable').after(msg);
+  }
+}
+
+function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+// ════════════════════════════════════════════════════════════════════════
+//  BUILD LEVEL
+// ════════════════════════════════════════════════════════════════════════
+function buildLevel(idx){
+  platforms=[]; qblocks=[]; coins=[]; particles=[];
+  camX=0; qAnswered=0; qCorrect=0;
+  platforms.push({x:0,y:GROUND_Y,w:LW,h:60,ground:true});
+  [{x:160,y:GROUND_Y-100,w:110,h:18},{x:340,y:GROUND_Y-145,w:100,h:18},
+   {x:500,y:GROUND_Y-95, w:90, h:18},{x:660,y:GROUND_Y-155,w:110,h:18},
+   {x:820,y:GROUND_Y-110,w:90, h:18},{x:970,y:GROUND_Y-155,w:120,h:18},
+   {x:1150,y:GROUND_Y-100,w:100,h:18},{x:1300,y:GROUND_Y-165,w:110,h:18},
+   {x:1470,y:GROUND_Y-110,w:90, h:18},{x:1620,y:GROUND_Y-150,w:120,h:18},
+   {x:1800,y:GROUND_Y-100,w:100,h:18},{x:1960,y:GROUND_Y-160,w:110,h:18},
+   {x:2130,y:GROUND_Y-110,w:90, h:18},{x:2280,y:GROUND_Y-150,w:120,h:18},
+   {x:2440,y:GROUND_Y-100,w:100,h:18},{x:2590,y:GROUND_Y-155,w:110,h:18},
+  ].forEach(p=>platforms.push({...p,ground:false}));
+
+  [360,720,1100,1500,1900].forEach((qx,i)=>{
+    if(i<LEVELS[idx].qs.length)
+      qblocks.push({x:qx,y:GROUND_Y-190,w:42,h:42,hit:false,qi:i,bounce:0});
+  });
+  for(let i=0;i<28;i++)
+    coins.push({x:120+i*95+Math.random()*40,y:GROUND_Y-80-Math.random()*90,done:false});
+  platforms.push({x:LW-80,y:GROUND_Y-220,w:12,h:220,ground:false,pole:true});
+
+  pl.x=80; pl.y=GROUND_Y-pl.h; pl.vx=0; pl.vy=0; pl.ground=false;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  GAME FLOW
+// ════════════════════════════════════════════════════════════════════════
+function startGame(){
+  lvlIdx=0; lives=3; score=0; scoreSaved=false;
+  buildLevel(0); state='playing';
+}
+function doNextLevel(){
+  lvlIdx++;
+  if(lvlIdx>=LEVELS.length){ state='win'; saveScoreIfNeeded(); return; }
+  buildLevel(lvlIdx); state='playing';
+}
+function loseLife(){
+  lives--;
+  if(lives<=0){ state='over'; saveScoreIfNeeded(); return; }
+  pl.x=80; pl.y=GROUND_Y-pl.h; pl.vx=0; pl.vy=0; camX=0;
+}
+async function saveScoreIfNeeded(){
+  if(scoreSaved||!playerName) return;
+  scoreSaved=true;
+  await dbSaveScore(playerName, playerTurma, score, lvlIdx);
+}
+function boom(x,y,col,n=8){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2, s=1.5+Math.random()*3;
+    particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-2,col,life:28,maxLife:28});
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  UPDATE
+// ════════════════════════════════════════════════════════════════════════
+function update(){
+  if(state!=='playing'||quizOpen) return;
+  let dx=0;
+  if(keys['ArrowLeft']||keys['KeyA']){dx=-1;pl.dir=-1;}
+  if(keys['ArrowRight']||keys['KeyD']){dx=1;pl.dir=1;}
+  pl.vx=dx*SPD;
+  if((keys['ArrowUp']||keys['KeyW']||keys['Space'])&&pl.ground){pl.vy=JUMP;pl.ground=false;}
+  pl.vy+=G; if(pl.vy>16)pl.vy=16;
+  pl.x+=pl.vx; pl.y+=pl.vy;
+  if(pl.x<0)pl.x=0; if(pl.x>LW-pl.w)pl.x=LW-pl.w;
+
+  pl.ground=false;
+  for(const p of platforms){
+    if(p.pole) continue;
+    if(rect(pl,p)){
+      const oy=Math.min(pl.y+pl.h,p.y+p.h)-Math.max(pl.y,p.y);
+      const ox=Math.min(pl.x+pl.w,p.x+p.w)-Math.max(pl.x,p.x);
+      if(oy<ox){
+        if(pl.y+pl.h/2<p.y+p.h/2){pl.y=p.y-pl.h;pl.vy=0;pl.ground=true;}
+        else{pl.y=p.y+p.h;pl.vy=Math.abs(pl.vy)*0.3;}
+      } else {
+        if(pl.x+pl.w/2<p.x+p.w/2)pl.x=p.x-pl.w; else pl.x=p.x+p.w;
+        pl.vx=0;
+      }
+    }
+  }
+  for(const qb of qblocks){
+    if(qb.hit) continue;
+    const head={x:pl.x+4,y:pl.y-4,w:pl.w-8,h:8};
+    const foot={x:qb.x,y:qb.y+qb.h-2,w:qb.w,h:6};
+    if(pl.vy<-1&&rect(head,foot)){
+      qb.hit=true;qb.bounce=10;pl.vy=3;boom(qb.x+qb.w/2,qb.y,'#64C8FF');openQuiz(qb.qi);
+    }
+    if(!qb.hit&&pl.x+pl.w>qb.x+2&&pl.x<qb.x+qb.w-2&&pl.y<qb.y+qb.h&&pl.y+pl.h>qb.y){
+      qb.hit=true;qb.bounce=8;boom(qb.x+qb.w/2,qb.y,'#64C8FF');openQuiz(qb.qi);
+    }
+  }
+  for(const c of coins){
+    if(!c.done&&pl.x+pl.w>c.x-8&&pl.x<c.x+18&&pl.y+pl.h>c.y-8&&pl.y<c.y+18){
+      c.done=true;score+=10;boom(c.x,c.y,'#64C8FF',6);
+    }
+  }
+  const flag={x:LW-80,y:GROUND_Y-220,w:60,h:220};
+  if(rect(pl,flag)&&qAnswered>=LEVELS[lvlIdx].qs.length) state='lvlEnd';
+  if(pl.y>H+80) loseLife();
+
+  const tx=pl.x-W/2+pl.w/2;
+  camX+=(tx-camX)*0.12;
+  camX=Math.max(0,Math.min(LW-W,camX));
+
+  if(pl.vx!==0&&pl.ground){pl.wt++;if(pl.wt>7){pl.wt=0;pl.wf=(pl.wf+1)%3;}}
+  else{pl.wf=0;pl.wt=0;}
+  for(const qb of qblocks){if(qb.bounce>0)qb.bounce-=2;}
+  for(let i=particles.length-1;i>=0;i--){
+    const p=particles[i];
+    p.x+=p.vx;p.y+=p.vy;p.vy+=0.25;p.life--;
+    if(p.life<=0)particles.splice(i,1);
+  }
+}
+function rect(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+
+// ════════════════════════════════════════════════════════════════════════
+//  QUIZ
+// ════════════════════════════════════════════════════════════════════════
+function openQuiz(qi){
+  const lvl=LEVELS[lvlIdx];
+  if(qi>=lvl.qs.length) return;
+  curQ=lvl.qs[qi]; quizOpen=true;
+  document.getElementById('quizTitle').textContent=`${lvl.name} · ${curQ.r}`;
+  document.getElementById('quizQ').textContent=curQ.t;
+  document.getElementById('quizExp').style.display='none';
+  document.getElementById('quizCont').style.display='none';
+  const opts=document.getElementById('quizOpts');
+  opts.innerHTML='';
+  curQ.o.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='obtn'; b.textContent=txt;
+    b.onclick=()=>answer(i,b); opts.appendChild(b);
+  });
+  document.getElementById('quiz').style.display='block';
+}
+function answer(i){
+  if(!curQ) return;
+  const right=i===curQ.c; qAnswered++;
+  document.querySelectorAll('.obtn').forEach((b,j)=>{
+    b.disabled=true;
+    if(j===curQ.c)b.classList.add('ok');
+    else if(j===i&&!right)b.classList.add('bad');
+  });
+  const exp=document.getElementById('quizExp');
+  exp.textContent=(right?'✓ Correto! ':'✗ Errado. ')+curQ.e;
+  exp.style.display='block';
+  document.getElementById('quizCont').style.display='block';
+  if(right){qCorrect++;score+=100;boom(pl.x+pl.w/2,pl.y,'#64C8FF',12);}
+  else{score=Math.max(0,score-20);}
+}
+function closeQuiz(){
+  document.getElementById('quiz').style.display='none';
+  quizOpen=false; curQ=null;
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  DRAW
+// ════════════════════════════════════════════════════════════════════════
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  if(state==='title'){drawTitle();return;}
+  if(state==='over'){drawOver();return;}
+  if(state==='win'){drawWin();return;}
+  if(state==='lvlEnd'){drawLvlEnd();return;}
+
+  const lvl=LEVELS[lvlIdx];
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,lvl.bg); grad.addColorStop(1,darken(lvl.bg,40));
+  ctx.fillStyle=grad; ctx.fillRect(0,0,W,H);
+  drawClouds(lvl.cloud);
+  ctx.save(); ctx.translate(-camX,0);
+
+  for(const p of platforms){
+    if(p.pole){
+      ctx.fillStyle='#999'; ctx.fillRect(p.x,p.y,p.w,p.h);
+      const done=qAnswered>=LEVELS[lvlIdx].qs.length;
+      ctx.fillStyle=done?'#00DD00':'#DD0000';
+      ctx.beginPath();ctx.moveTo(p.x+p.w,p.y);ctx.lineTo(p.x+p.w+48,p.y+22);ctx.lineTo(p.x+p.w,p.y+44);ctx.fill();
+      continue;
+    }
+    if(p.ground){
+      ctx.fillStyle=lvl.groundBase; ctx.fillRect(p.x,p.y,p.w,p.h);
+      ctx.fillStyle=lvl.groundColor; ctx.fillRect(p.x,p.y,p.w,16);
+      ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=1;
+      for(let bx=p.x;bx<p.x+p.w;bx+=40){ctx.beginPath();ctx.moveTo(bx,p.y+16);ctx.lineTo(bx,p.y+p.h);ctx.stroke();}
+    } else {
+      ctx.fillStyle='#336699'; ctx.fillRect(p.x,p.y,p.w,p.h);
+      ctx.fillStyle='#224477'; ctx.fillRect(p.x,p.y,p.w,5);
+      ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1;
+      for(let bx=p.x;bx<p.x+p.w;bx+=25){ctx.beginPath();ctx.moveTo(bx,p.y);ctx.lineTo(bx,p.y+p.h);ctx.stroke();}
+    }
+  }
+  for(const qb of qblocks){
+    const by=qb.bounce>0?qb.y-qb.bounce*0.8:qb.y;
+    if(qb.hit){
+      ctx.fillStyle='#335577'; ctx.fillRect(qb.x,by,qb.w,qb.h);
+      ctx.strokeStyle='#224466'; ctx.lineWidth=2; ctx.strokeRect(qb.x,by,qb.w,qb.h);
+    } else {
+      const pulse=Math.sin(Date.now()/400)*3;
+      ctx.fillStyle='#0088CC'; ctx.fillRect(qb.x,by-pulse,qb.w,qb.h);
+      ctx.fillStyle='#0055AA';
+      ctx.fillRect(qb.x,by-pulse,qb.w,5); ctx.fillRect(qb.x,by-pulse+qb.h-5,qb.w,5);
+      ctx.fillRect(qb.x,by-pulse,5,qb.h); ctx.fillRect(qb.x+qb.w-5,by-pulse,5,qb.h);
+      ctx.fillStyle='#ffffff'; ctx.font='bold 26px serif'; ctx.textAlign='center';
+      ctx.fillText('?',qb.x+qb.w/2,by-pulse+qb.h*0.72);
+    }
+  }
+  for(const c of coins){
+    if(!c.done){
+      const bob=Math.sin(Date.now()/600+c.x)*3;
+      ctx.fillStyle='#64C8FF'; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#2288CC'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.stroke();
+    }
+  }
+  for(const p of particles){
+    ctx.globalAlpha=p.life/p.maxLife; ctx.fillStyle=p.col;
+    ctx.fillRect(p.x-3,p.y-3,6,6);
+  }
+  ctx.globalAlpha=1;
+  drawMario(pl.x,pl.y,pl.dir,pl.wf,pl.ground,pl.vy);
+  ctx.restore();
+  drawHUD();
+  if(!quizOpen){
+    const pending=LEVELS[lvlIdx].qs.length-qAnswered;
+    if(pending>0){
+      ctx.fillStyle='rgba(0,0,0,0.65)'; roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
+      ctx.fillStyle='#64C8FF'; ctx.font='13px Courier New'; ctx.textAlign='center';
+      ctx.fillText(`Encontre os blocos ? : ${pending} pergunta${pending>1?'s':''} restante${pending>1?'s':''}`,W/2,H-17);
+    } else {
+      ctx.fillStyle='rgba(0,80,100,0.75)'; roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
+      ctx.fillStyle='#AAFFFF'; ctx.font='13px Courier New'; ctx.textAlign='center';
+      ctx.fillText('Chegue à bandeira verde para avançar! ▶',W/2,H-17);
+    }
+  }
+}
+
+// ── MARIO ────────────────────────────────────────────────────────────
+function drawMario(x,y,dir,wf,onG){
+  ctx.save();
+  if(dir<0){ctx.translate(x+16,0);ctx.scale(-1,1);x=0;}else{ctx.translate(x,0);x=0;}
+  const lly=onG&&wf===1?2:onG&&wf===2?-2:0;
+  ctx.fillStyle='#5a2800'; ctx.fillRect(x,y+36,14,8); ctx.fillRect(x+18,y+36-lly,14,8);
+  ctx.fillStyle='#0033aa'; ctx.fillRect(x+2,y+28,10,12); ctx.fillRect(x+20,y+28+lly,10,12);
+  ctx.fillStyle='#0033aa'; ctx.fillRect(x+8,y+16,16,8); ctx.fillRect(x+7,y+12,4,8); ctx.fillRect(x+21,y+12,4,8);
+  ctx.fillStyle='#cc0000'; ctx.fillRect(x+2,y+14,28,16);
+  ctx.fillStyle='#ffcc88'; ctx.fillRect(x+6,y+1,20,14);
+  ctx.fillStyle='#cc0000'; ctx.fillRect(x+4,y-8,24,10); ctx.fillRect(x+2,y+1,28,4);
+  ctx.fillStyle='#884400'; ctx.fillRect(x+6,y+1,20,3);
+  ctx.fillStyle='#111'; ctx.fillRect(x+18,y+4,5,5);
+  ctx.fillStyle='#dd9966'; ctx.fillRect(x+21,y+9,5,3);
+  ctx.fillStyle='#884400'; ctx.fillRect(x+11,y+10,14,4);
+  ctx.fillStyle='#64C8FF'; ctx.fillRect(x+11,y+17,4,4); ctx.fillRect(x+17,y+17,4,4);
+  ctx.fillStyle='#cc0000'; ctx.fillRect(x-2,y+14,6,10); ctx.fillRect(x+28,y+14,6,10);
+  ctx.fillStyle='#ffcc88'; ctx.fillRect(x-3,y+22,6,6); ctx.fillRect(x+29,y+22,6,6);
+  ctx.restore();
+}
+
+// ── NUVENS ───────────────────────────────────────────────────────────
+function drawClouds(col){
+  [[120,60],[320,40],[580,70],[150,110],[450,55],[700,80]].forEach(([cx,cy],i)=>{
+    const x=((cx-camX*(0.15+i*0.02))%W+W*2)%W-40;
+    ctx.fillStyle=col;
+    ctx.beginPath(); ctx.arc(x,cy,22,0,Math.PI*2); ctx.arc(x+28,cy-8,26,0,Math.PI*2); ctx.arc(x+56,cy,22,0,Math.PI*2); ctx.fill();
+  });
+}
+
+// ── HUD ──────────────────────────────────────────────────────────────
+function drawHUD(){
+  ctx.fillStyle='rgba(0,0,0,0.72)'; ctx.fillRect(0,0,W,44);
+  for(let i=0;i<3;i++) drawHeart(14+i*28,12,i<lives?'#3399ff':'#1a3355');
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 15px Courier New'; ctx.textAlign='center';
+  ctx.fillText('PONTOS: '+score,W/2,28);
+  ctx.fillStyle='#aaffff'; ctx.font='11px Courier New'; ctx.textAlign='left';
+  ctx.fillText(playerName+(playerTurma?' · '+playerTurma:''),100,18);
+  ctx.fillStyle='#aaffaa'; ctx.font='11px Courier New'; ctx.textAlign='right';
+  ctx.fillText('Fase '+(lvlIdx+1)+': '+LEVELS[lvlIdx].name,W-10,15);
+  ctx.fillStyle='#64C8FF';
+  ctx.fillText('Perguntas: '+qAnswered+'/'+LEVELS[lvlIdx].qs.length,W-10,32);
+}
+function drawHeart(x,y,col){
+  ctx.fillStyle=col; ctx.beginPath();
+  ctx.arc(x+5,y+4,5,Math.PI,0); ctx.arc(x+15,y+4,5,Math.PI,0);
+  ctx.lineTo(x+20,y+9); ctx.lineTo(x+10,y+20); ctx.lineTo(x,y+9);
+  ctx.closePath(); ctx.fill();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  TELAS
+// ════════════════════════════════════════════════════════════════════════
+function drawTitle(){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#051a3a'); g.addColorStop(1,'#0a3a6a');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+  ctx.fillStyle='rgba(100,200,255,0.4)';
+  [[65,38],[245,26],[490,40],[670,30]].forEach(([cx,cy])=>{
+    ctx.beginPath(); ctx.arc(cx,cy,16,0,Math.PI*2); ctx.arc(cx+22,cy-7,20,0,Math.PI*2); ctx.arc(cx+44,cy,16,0,Math.PI*2); ctx.fill();
+  });
+
+  ctx.fillStyle='#1a6b2a'; ctx.fillRect(0,H-68,W,16);
+  ctx.fillStyle='#0a3a14'; ctx.fillRect(0,H-52,W,52);
+
+  ctx.shadowColor='#0088ff'; ctx.shadowBlur=14;
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 44px serif'; ctx.textAlign='center';
+  ctx.fillText('CONCORDÂNCIA QUEST',W/2,50);
+  ctx.shadowBlur=0;
+  ctx.fillStyle='#fff'; ctx.font='16px serif';
+  ctx.fillText('Gramática em Ação — 3º Ano B',W/2,74);
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 13px Courier New';
+  ctx.fillText('✎  Prof. Weldes Charles',W/2,95);
+  ctx.strokeStyle='rgba(100,200,255,0.4)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(40,107); ctx.lineTo(W-40,107); ctx.stroke();
+
+  ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,26,114,358,162,6); ctx.fill();
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 12px Courier New'; ctx.textAlign='left';
+  ctx.fillText('FASES DO JOGO:',38,131);
+  LEVELS.forEach((l,i)=>{
+    const lx=38,ly=150+i*22;
+    ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fillRect(lx-2,ly-13,338,18);
+    ctx.fillStyle='#ddd'; ctx.font='12px Courier New';
+    ctx.fillText('▸ Fase '+(i+1)+': '+l.name,lx,ly);
+  });
+
+  ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,26,284,358,56,6); ctx.fill();
+  if(Math.floor(Date.now()/550)%2){
+    ctx.fillStyle='#64C8FF'; ctx.font='bold 14px Courier New'; ctx.textAlign='center';
+    ctx.fillText('► ENTER ou ESPAÇO para jogar ◄',205,308);
+  }
+  ctx.fillStyle='#aaa'; ctx.font='12px Courier New'; ctx.textAlign='center';
+  ctx.fillText('← → Mover  |  ↑ / Espaço Pular',205,328);
+
+  const qbY=210;
+  [424,470,516,562].forEach((bx,i)=>{
+    ctx.fillStyle=i%2===0?'#0088CC':'#336699'; ctx.fillRect(bx,qbY,40,40);
+    ctx.fillStyle=i%2===0?'#0055AA':'#224477';
+    ctx.fillRect(bx,qbY,40,5); ctx.fillRect(bx,qbY+35,40,5);
+    ctx.fillRect(bx,qbY,5,40); ctx.fillRect(bx+35,qbY,5,40);
+    if(i%2===0){ ctx.fillStyle='#ffffff'; ctx.font='bold 24px serif'; ctx.textAlign='center'; ctx.fillText('?',bx+20,qbY+28); }
+  });
+  [444,512,580].forEach(cx=>{
+    ctx.fillStyle='#64C8FF'; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#2288CC'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.stroke();
+  });
+  drawMario(610,H-68-52,1,0,true,0);
+  ctx.strokeStyle='rgba(100,200,255,0.18)'; ctx.lineWidth=1;
+  roundRect(ctx,412,114,372,225,6); ctx.stroke();
+
+  ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,412,348,372,32,6); ctx.fill();
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 13px Courier New'; ctx.textAlign='center';
+  ctx.fillText('🏆 Clique aqui para ver o Ranking',598,369);
+
+  canvas.onclick=e=>{
+    if(state!=='title') return;
+    const r=canvas.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
+    if(mx>=412&&mx<=784&&my>=348&&my<=380){ canvas.onclick=null; showRanking(false); }
+    else{ canvas.onclick=null; showReg(); }
+  };
+}
+
+function drawLvlEnd(){
+  ctx.fillStyle='rgba(0,10,30,0.95)'; ctx.fillRect(0,0,W,H);
+  ctx.shadowColor='#64C8FF'; ctx.shadowBlur=20;
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 44px serif'; ctx.textAlign='center';
+  ctx.fillText('FASE COMPLETA!',W/2,100); ctx.shadowBlur=0;
+  ctx.fillStyle='#aaffff'; ctx.font='20px Courier New';
+  ctx.fillText(LEVELS[lvlIdx].name,W/2,140);
+  ctx.fillStyle='#fff'; ctx.font='17px Courier New';
+  ctx.fillText('Perguntas corretas: '+qCorrect+' / '+qAnswered,W/2,188);
+  ctx.fillText('Pontuação: '+score,W/2,218);
+  const pct=qAnswered>0?qCorrect/qAnswered:0;
+  const stars=pct>=0.8?3:pct>=0.6?2:1;
+  ctx.font='42px serif'; ctx.fillText('⭐'.repeat(stars)+'☆'.repeat(3-stars),W/2,268);
+  if(lvlIdx<LEVELS.length-1){
+    ctx.fillStyle='#64C8FF'; ctx.font='15px Courier New';
+    ctx.fillText('Próxima: Fase '+(lvlIdx+2)+' — '+LEVELS[lvlIdx+1].name,W/2,316);
+  }
+  if(Math.floor(Date.now()/550)%2){
+    ctx.fillStyle='#aaffff'; ctx.font='bold 18px Courier New';
+    ctx.fillText(lvlIdx<LEVELS.length-1?'► ENTER para continuar':'► ENTER para ver resultado final',W/2,H-55);
+  }
+}
+
+function drawOver(){
+  ctx.fillStyle='rgba(0,10,40,0.97)'; ctx.fillRect(0,0,W,H);
+  ctx.shadowColor='#ff4444'; ctx.shadowBlur=20;
+  ctx.fillStyle='#ff4444'; ctx.font='bold 66px serif'; ctx.textAlign='center';
+  ctx.fillText('GAME OVER',W/2,145); ctx.shadowBlur=0;
+  ctx.fillStyle='#fff'; ctx.font='16px Courier New';
+  ctx.fillText(playerName+' · '+playerTurma,W/2,185);
+  ctx.fillText('Pontuação registrada: '+score,W/2,215);
+  ctx.fillStyle='#64C8FF'; ctx.font='14px Courier New';
+  ctx.fillText('Revise a Concordância Verbal e tente novamente!',W/2,255);
+  ctx.fillStyle='rgba(100,200,255,0.15)'; roundRect(ctx,W/2-150,278,300,36,8); ctx.fill();
+  ctx.strokeStyle='#64C8FF'; ctx.lineWidth=1; roundRect(ctx,W/2-150,278,300,36,8); ctx.stroke();
+  ctx.fillStyle='#64C8FF'; ctx.font='13px Courier New';
+  ctx.fillText('🏆 Ver Ranking',W/2,302);
+  if(Math.floor(Date.now()/550)%2){
+    ctx.fillStyle='#aaa'; ctx.font='14px Courier New';
+    ctx.fillText('ENTER para jogar novamente',W/2,H-55);
+  }
+  canvas.onclick=e=>{
+    if(state!=='over') return;
+    const r=canvas.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
+    if(mx>=W/2-150&&mx<=W/2+150&&my>=278&&my<=314){ canvas.onclick=null; showRanking(false); }
+    else{ canvas.onclick=null; showReg(); }
+  };
+}
+
+function drawWin(){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#001a3a'); g.addColorStop(1,'#003366');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  ctx.shadowColor='#64C8FF'; ctx.shadowBlur=25;
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 52px serif'; ctx.textAlign='center';
+  ctx.fillText('PARABÉNS!',W/2,75); ctx.shadowBlur=0;
+  ctx.fillStyle='#aaffff'; ctx.font='17px Courier New';
+  ctx.fillText('Você dominou a Concordância Verbal!',W/2,108);
+  ctx.fillStyle='#fff'; ctx.font='13px Courier New';
+  ctx.fillText(playerName+' · Turma '+playerTurma,W/2,132);
+  ['✓ Regra Geral e Sujeito Composto',
+   '✓ Expressões Partitivas e Porcentagem',
+   '✓ Pronomes e Expressões Especiais',
+   '✓ Conectivos Especiais (com, nem, ou...)',
+   '✓ Verbos Impessoais e Casos com SE'
+  ].forEach((l,i)=>{ ctx.fillStyle='#aaddff'; ctx.font='13px Courier New'; ctx.fillText(l,W/2,160+i*24); });
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 16px Courier New';
+  ctx.fillText('Pontuação final: '+score,W/2,300);
+  ctx.font='42px serif'; ctx.fillText('⭐⭐⭐',W/2,348);
+  ctx.fillStyle='rgba(100,200,255,0.15)'; roundRect(ctx,W/2-150,362,300,36,8); ctx.fill();
+  ctx.strokeStyle='#64C8FF'; ctx.lineWidth=1; roundRect(ctx,W/2-150,362,300,36,8); ctx.stroke();
+  ctx.fillStyle='#64C8FF'; ctx.font='bold 14px Courier New';
+  ctx.fillText('🏆 Ver Ranking',W/2,386);
+  if(Math.floor(Date.now()/550)%2){
+    ctx.fillStyle='#aaffff'; ctx.font='13px Courier New';
+    ctx.fillText('ENTER para jogar novamente',W/2,H-12);
+  }
+  canvas.onclick=e=>{
+    if(state!=='win') return;
+    const r=canvas.getBoundingClientRect();
+    const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
+    if(mx>=W/2-150&&mx<=W/2+150&&my>=362&&my<=398){ canvas.onclick=null; showRanking(false); }
+    else{ canvas.onclick=null; showReg(); }
+  };
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════════════════════
+function darken(hex,pct){
+  const n=parseInt(hex.replace('#','').padStart(6,'0'),16);
+  const r=Math.max(0,((n>>16)&255)-pct), gg=Math.max(0,((n>>8)&255)-pct), b=Math.max(0,(n&255)-pct);
+  return '#'+[r,gg,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath(); ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath();
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  LOOP
+// ════════════════════════════════════════════════════════════════════════
+function loop(){ update(); draw(); requestAnimationFrame(loop); }
+loop();
+</script>
+</body>
+</html>

@@ -1,13 +1,25 @@
 {
   "version": 2,
-  "name": "silaba-quest",
+  "name": "jogos-prof-weldes",
   "builds": [
     {
       "src": "silaba-quest/index.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "concordancia-verbal/index.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/concordancia-verbal",
+      "dest": "/concordancia-verbal/index.html"
+    },
+    {
+      "src": "/concordancia-verbal/(.*)",
+      "dest": "/concordancia-verbal/index.html"
+    },
     {
       "src": "/(.*)",
       "dest": "/silaba-quest/index.html"
