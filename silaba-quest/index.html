@@ -94,13 +94,26 @@ canvas { display:block; }
 #quizCont:hover { background:#ffe066; }
 
 /* ── RANKING TABLE ────────────────────────────────── */
-#rankTable { width:100%; border-collapse:collapse; margin-top:8px; }
-#rankTable th {
-  background:#FFD700; color:#000; padding:7px 10px;
+#rankScroll {
+  max-height: 320px;
+  overflow-y: auto;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #2a2a4a;
+  scrollbar-width: thin;
+  scrollbar-color: #FFD700 #1a1a3a;
+}
+#rankScroll::-webkit-scrollbar { width: 7px; }
+#rankScroll::-webkit-scrollbar-track { background: #1a1a3a; border-radius: 6px; }
+#rankScroll::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 6px; }
+#rankTable { width:100%; border-collapse:collapse; }
+#rankTable thead th {
+  position: sticky; top: 0; z-index: 1;
+  background:#FFD700; color:#000; padding:8px 10px;
   font-size:12px; text-align:left; font-family:'Courier New',monospace;
 }
 #rankTable td {
-  padding:6px 10px; font-size:13px; border-bottom:1px solid #2a2a4a;
+  padding:7px 10px; font-size:13px; border-bottom:1px solid #2a2a4a;
 }
 #rankTable tr:nth-child(even) td { background:rgba(255,255,255,0.04); }
 #rankTable tr.me td { background:rgba(255,215,0,0.12); color:#FFD700; font-weight:bold; }
@@ -144,12 +157,14 @@ canvas { display:block; }
     <div class="panel" style="width:600px">
       <h2>🏆 Ranking — Melhores Pontuações</h2>
       <div id="rankLoading">Carregando...</div>
-      <table id="rankTable" style="display:none">
-        <thead><tr>
-          <th>#</th><th>Aluno</th><th>Turma</th><th>Pontos</th><th>Fases</th><th>Data</th>
-        </tr></thead>
-        <tbody id="rankBody"></tbody>
-      </table>
+      <div id="rankScroll" style="display:none">
+        <table id="rankTable">
+          <thead><tr>
+            <th>#</th><th>Aluno</th><th>Turma</th><th>Pontos</th><th>Fases</th><th>Data</th>
+          </tr></thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+      </div>
       <button class="btn-gold" id="rankPlayBtn" onclick="closeRanking()" style="margin-top:16px">▶ Jogar</button>
       <button class="btn-ghost" onclick="closeRanking()">✕ Fechar</button>
     </div>
@@ -429,6 +444,7 @@ function closeRanking(){
 async function loadAndRenderRanking(){
   const rows = await dbLoadRanking();
   document.getElementById('rankLoading').style.display='none';
+  document.getElementById('rankScroll').scrollTop = 0;
 
   const tbody = document.getElementById('rankBody');
   tbody.innerHTML='';
@@ -451,12 +467,12 @@ async function loadAndRenderRanking(){
       tbody.appendChild(tr);
     });
   }
-  document.getElementById('rankTable').style.display='table';
+  document.getElementById('rankScroll').style.display='block';
   if(!SB_READY){
     const msg=document.createElement('p');
     msg.style.cssText='font-size:11px;color:#666;text-align:center;margin-top:10px';
     msg.textContent='⚠ Modo local (Supabase não configurado) — ranking apenas neste dispositivo.';
-    document.getElementById('rankTable').after(msg);
+    document.getElementById('rankScroll').after(msg);
   }
 }
 
