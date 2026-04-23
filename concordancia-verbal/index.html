@@ -94,8 +94,17 @@ canvas { display:block; }
 #quizCont:hover { background:#8adcff; }
 
 /* ── RANKING TABLE ────────────────────────────────── */
-#rankTable { width:100%; border-collapse:collapse; margin-top:8px; }
-#rankTable th {
+#rankScroll {
+  max-height:320px; overflow-y:auto; margin-top:8px;
+  border-radius:6px; border:1px solid #2a2a4a;
+}
+#rankScroll::-webkit-scrollbar { width:7px; }
+#rankScroll::-webkit-scrollbar-track { background:#0a0a20; border-radius:6px; }
+#rankScroll::-webkit-scrollbar-thumb { background:#64C8FF; border-radius:6px; }
+#rankScroll::-webkit-scrollbar-thumb:hover { background:#8adcff; }
+#rankTable { width:100%; border-collapse:collapse; }
+#rankTable thead th {
+  position:sticky; top:0; z-index:2;
   background:#64C8FF; color:#000; padding:7px 10px;
   font-size:12px; text-align:left; font-family:'Courier New',monospace;
 }
@@ -144,12 +153,14 @@ canvas { display:block; }
     <div class="panel" style="width:600px">
       <h2>🏆 Ranking — Melhores Pontuações</h2>
       <div id="rankLoading">Carregando...</div>
-      <table id="rankTable" style="display:none">
-        <thead><tr>
-          <th>#</th><th>Aluno</th><th>Turma</th><th>Pontos</th><th>Fases</th><th>Data</th>
-        </tr></thead>
-        <tbody id="rankBody"></tbody>
-      </table>
+      <div id="rankScroll" style="display:none">
+        <table id="rankTable">
+          <thead><tr>
+            <th>#</th><th>Aluno</th><th>Turma</th><th>Pontos</th><th>Fases</th><th>Data</th>
+          </tr></thead>
+          <tbody id="rankBody"></tbody>
+        </table>
+      </div>
       <button class="btn-blue" id="rankPlayBtn" onclick="closeRanking()" style="margin-top:16px">▶ Jogar</button>
       <button class="btn-ghost" onclick="closeRanking()">✕ Fechar</button>
     </div>
@@ -443,7 +454,7 @@ async function loadAndRenderRanking(){
       tbody.appendChild(tr);
     });
   }
-  document.getElementById('rankTable').style.display='table';
+  document.getElementById('rankScroll').style.display='block';
   if(!SB_READY){
     const msg=document.createElement('p');
     msg.style.cssText='font-size:11px;color:#666;text-align:center;margin-top:10px';
