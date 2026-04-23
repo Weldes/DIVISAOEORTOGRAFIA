@@ -431,7 +431,7 @@ function showRanking(fromReg=false){
   document.getElementById('rankPlayBtn').textContent =
     afterRankingFrom==='reg' ? '▶ Voltar ao cadastro' : '▶ Jogar';
   document.getElementById('rankLoading').style.display='block';
-  document.getElementById('rankTable').style.display='none';
+  document.getElementById('rankScroll').style.display='none';
   document.getElementById('ovRank').classList.add('show');
   loadAndRenderRanking();
 }
