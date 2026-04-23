@@ -618,7 +618,7 @@ function answer(i){
   exp.textContent=(right?'✓ Correto! ':'✗ Errado. ')+curQ.e;
   exp.style.display='block';
   document.getElementById('quizCont').style.display='block';
-  if(right){qCorrect++;score+=100;boom(pl.x+pl.w/2,pl.y,'#64C8FF',12);}
+  if(right){qCorrect++;score+=150;boom(pl.x+pl.w/2,pl.y,'#64C8FF',12);}
   else{score=Math.max(0,score-20);}
 }
 function closeQuiz(){
