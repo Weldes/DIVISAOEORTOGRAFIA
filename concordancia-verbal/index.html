@@ -419,7 +419,7 @@ function showRanking(fromReg=false){
   document.getElementById('rankPlayBtn').textContent =
     afterRankingFrom==='reg' ? '▶ Voltar ao cadastro' : '▶ Jogar';
   document.getElementById('rankLoading').style.display='block';
-  document.getElementById('rankTable').style.display='none';
+  document.getElementById('rankScroll').style.display='none';
   document.getElementById('ovRank').classList.add('show');
   loadAndRenderRanking();
 }
@@ -459,7 +459,7 @@ async function loadAndRenderRanking(){
     const msg=document.createElement('p');
     msg.style.cssText='font-size:11px;color:#666;text-align:center;margin-top:10px';
     msg.textContent='⚠ Modo local — ranking apenas neste dispositivo.';
-    document.getElementById('rankTable').after(msg);
+    document.getElementById('rankScroll').after(msg);
   }
 }
 
