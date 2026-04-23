@@ -632,7 +632,7 @@ function answer(i){
   exp.style.display='block';
   document.getElementById('quizCont').style.display='block';
   if(right){qCorrect++;score+=150;boom(pl.x+pl.w/2,pl.y,'#FFD700',12);}
-  else{score=Math.max(0,score-20);}
+  else{score-=20;}
 }
 function closeQuiz(){
   document.getElementById('quiz').style.display='none';
