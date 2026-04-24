@@ -5,6 +5,8 @@
     { "source": "/concordancia-verbal/", "destination": "/concordancia-verbal/index.html" },
     { "source": "/silaba-quest", "destination": "/silaba-quest/index.html" },
     { "source": "/silaba-quest/", "destination": "/silaba-quest/index.html" },
+    { "source": "/classes-quest", "destination": "/silaba-quest/classes-quest.html" },
+    { "source": "/classes-quest/", "destination": "/silaba-quest/classes-quest.html" },
     { "source": "/", "destination": "/silaba-quest/index.html" }
   ]
 }
