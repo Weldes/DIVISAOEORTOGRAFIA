@@ -369,8 +369,8 @@ const W=800, H=450, LW=2800, GROUND_Y=H-60, G=0.55, JUMP=-13, SPD=4;
 let state='title';                    // title | playing | quiz | lvlEnd | over | win
 let lvlIdx=0, lives=3, score=0;
 let qAnswered=0, qCorrect=0;
-let platforms=[], qblocks=[], coins=[], particles=[];
-let camX=0, quizOpen=false, curQ=null;
+let platforms=[], qblocks=[], coins=[], particles=[], enemies=[];
+let camX=0, quizOpen=false, curQ=null, plInvince=0;
 let afterRankingFrom='title';         // onde voltar após fechar ranking
 
 // Dados do jogador
@@ -482,8 +482,8 @@ function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','
 //  BUILD LEVEL
 // ════════════════════════════════════════════════════════════════════════
 function buildLevel(idx){
-  platforms=[]; qblocks=[]; coins=[]; particles=[];
-  camX=0; qAnswered=0; qCorrect=0;
+  platforms=[]; qblocks=[]; coins=[]; particles=[]; enemies=[];
+  camX=0; qAnswered=0; qCorrect=0; plInvince=0;
   platforms.push({x:0,y:GROUND_Y,w:LW,h:60,ground:true});
   [{x:160,y:GROUND_Y-100,w:110,h:18},{x:340,y:GROUND_Y-145,w:100,h:18},
    {x:500,y:GROUND_Y-95, w:90, h:18},{x:660,y:GROUND_Y-155,w:110,h:18},
@@ -501,6 +501,17 @@ function buildLevel(idx){
   });
   for(let i=0;i<28;i++)
     coins.push({x:120+i*95+Math.random()*40,y:GROUND_Y-80-Math.random()*90,done:false});
+
+  enemies=[];
+  [250,550,880,1150,1480,1750,2050,2350].forEach(ex=>{
+    enemies.push({
+      x:ex, y:GROUND_Y-28, w:28, h:28,
+      vx:1.4*(Math.random()>0.5?1:-1),
+      dead:false, deadTimer:0,
+      minX:Math.max(10,ex-180), maxX:Math.min(LW-30,ex+180)
+    });
+  });
+
   platforms.push({x:LW-80,y:GROUND_Y-220,w:12,h:220,ground:false,pole:true});
 
   pl.x=80; pl.y=GROUND_Y-pl.h; pl.vx=0; pl.vy=0; pl.ground=false;
@@ -522,6 +533,7 @@ function loseLife(){
   lives--;
   if(lives<=0){ state='over'; saveScoreIfNeeded(); return; }
   pl.x=80; pl.y=GROUND_Y-pl.h; pl.vx=0; pl.vy=0; camX=0;
+  plInvince=120;
 }
 async function saveScoreIfNeeded(){
   if(scoreSaved||!playerName) return;
@@ -580,6 +592,29 @@ function update(){
       c.done=true;score+=10;boom(c.x,c.y,'#FFD700',6);
     }
   }
+  // ── Enemy update ────────────────────────────────────────────────────
+  if(plInvince>0) plInvince--;
+  for(let ei=enemies.length-1;ei>=0;ei--){
+    const e=enemies[ei];
+    if(e.dead){ e.deadTimer--; if(e.deadTimer<=0) enemies.splice(ei,1); continue; }
+    e.x+=e.vx;
+    if(e.x<=e.minX){ e.x=e.minX; e.vx=Math.abs(e.vx); }
+    if(e.x+e.w>=e.maxX){ e.x=e.maxX-e.w; e.vx=-Math.abs(e.vx); }
+    // Stomp: player falling onto enemy top
+    if(pl.vy>0 && pl.x+pl.w>e.x+4 && pl.x<e.x+e.w-4 &&
+       pl.y+pl.h>e.y+2 && pl.y+pl.h<e.y+e.h*0.6){
+      e.dead=true; e.deadTimer=22;
+      pl.vy=JUMP*0.55;
+      score+=50; boom(e.x+e.w/2,e.y+e.h/2,'#aa4400',8);
+    }
+    // Side/bottom hit when not invincible
+    else if(plInvince===0 &&
+            pl.x+pl.w>e.x+4 && pl.x<e.x+e.w-4 &&
+            pl.y+pl.h>e.y+6 && pl.y<e.y+e.h){
+      loseLife();
+    }
+  }
+
   const flag={x:LW-80,y:GROUND_Y-220,w:60,h:220};
   if(rect(pl,flag)&&qAnswered>=LEVELS[lvlIdx].qs.length) state='lvlEnd';
   if(pl.y>H+80) loseLife();
@@ -605,7 +640,16 @@ function rect(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
 function openQuiz(qi){
   const lvl=LEVELS[lvlIdx];
   if(qi>=lvl.qs.length) return;
-  curQ=lvl.qs[qi]; quizOpen=true;
+  quizOpen=true;
+  // Shuffle options with Fisher-Yates, remapping correct index
+  const orig=lvl.qs[qi];
+  const order=[...orig.o.keys()];
+  for(let k=order.length-1;k>0;k--){
+    const j=Math.floor(Math.random()*(k+1));
+    [order[k],order[j]]=[order[j],order[k]];
+  }
+  curQ={...orig, o:order.map(i=>orig.o[i]), c:order.indexOf(orig.c)};
+
   document.getElementById('quizTitle').textContent=`${lvl.name} · ${curQ.r}`;
   document.getElementById('quizQ').textContent=curQ.t;
   document.getElementById('quizExp').style.display='none';
@@ -703,7 +747,12 @@ function draw(){
     ctx.fillRect(p.x-3,p.y-3,6,6);
   }
   ctx.globalAlpha=1;
-  drawMario(pl.x,pl.y,pl.dir,pl.wf,pl.ground,pl.vy);
+  // Draw enemies
+  for(const e of enemies) drawEnemy(e);
+  // Draw Mario with invincibility blink
+  if(plInvince===0 || Math.floor(plInvince/5)%2===0){
+    drawMario(pl.x,pl.y,pl.dir,pl.wf,pl.ground,pl.vy);
+  }
   ctx.restore();
   drawHUD();
   if(!quizOpen){
@@ -739,6 +788,54 @@ function drawMario(x,y,dir,wf,onG){
   ctx.fillStyle='#cc0000'; ctx.fillRect(x-2,y+14,6,10); ctx.fillRect(x+28,y+14,6,10);
   ctx.fillStyle='#ffcc88'; ctx.fillRect(x-3,y+22,6,6); ctx.fillRect(x+29,y+22,6,6);
   ctx.restore();
+}
+
+// ── INIMIGO (Goomba) ─────────────────────────────────────────────────
+function drawEnemy(e){
+  const ex=e.x, ey=e.y, ew=e.w, eh=e.h;
+  if(e.dead){
+    // Squashed flat
+    ctx.fillStyle='#6b2800';
+    ctx.beginPath(); ctx.ellipse(ex+ew/2,ey+eh-4,ew/2,5,0,0,Math.PI*2); ctx.fill();
+    return;
+  }
+  // Walking wobble
+  const wobY=Math.sin(Date.now()/140+ex)*1.5;
+  // Body (round brown)
+  ctx.fillStyle='#8B4513';
+  ctx.beginPath(); ctx.ellipse(ex+ew/2,ey+eh*0.6+wobY,ew/2,eh*0.42,0,0,Math.PI*2); ctx.fill();
+  // Head (darker dome)
+  ctx.fillStyle='#6b2800';
+  ctx.beginPath(); ctx.ellipse(ex+ew/2,ey+eh*0.3+wobY,ew/2*0.88,eh*0.36,0,Math.PI,0); ctx.fill();
+  // Feet (alternate)
+  const ft=Math.floor(Date.now()/160)%2;
+  ctx.fillStyle='#2a0f00';
+  ctx.beginPath(); ctx.ellipse(ex+6+(ft?4:0),ey+eh-3+wobY,6,5,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(ex+ew-6-(ft?0:4),ey+eh-3+wobY,6,5,0,0,Math.PI*2); ctx.fill();
+  // Eyes (white sclera)
+  ctx.fillStyle='#fff';
+  ctx.fillRect(ex+4,ey+eh*0.22-3+wobY,8,7);
+  ctx.fillRect(ex+ew-12,ey+eh*0.22-3+wobY,8,7);
+  // Pupils (angry — slant toward center-bottom)
+  ctx.fillStyle='#000';
+  const pupOff=e.vx>0?2:-2;
+  ctx.fillRect(ex+5+pupOff,ey+eh*0.22-1+wobY,4,4);
+  ctx.fillRect(ex+ew-11+pupOff,ey+eh*0.22-1+wobY,4,4);
+  // Angry brows
+  ctx.strokeStyle='#2a0f00'; ctx.lineWidth=2.5;
+  ctx.beginPath();
+  if(e.vx>0){
+    ctx.moveTo(ex+3,ey+eh*0.22-5+wobY); ctx.lineTo(ex+12,ey+eh*0.22-3+wobY);
+    ctx.moveTo(ex+ew-13,ey+eh*0.22-3+wobY); ctx.lineTo(ex+ew-3,ey+eh*0.22-5+wobY);
+  } else {
+    ctx.moveTo(ex+3,ey+eh*0.22-3+wobY); ctx.lineTo(ex+12,ey+eh*0.22-5+wobY);
+    ctx.moveTo(ex+ew-13,ey+eh*0.22-5+wobY); ctx.lineTo(ex+ew-3,ey+eh*0.22-3+wobY);
+  }
+  ctx.stroke();
+  // Teeth
+  ctx.fillStyle='#fff';
+  ctx.fillRect(ex+7,ey+eh*0.55+wobY,5,4);
+  ctx.fillRect(ex+ew-12,ey+eh*0.55+wobY,5,4);
 }
 
 // ── NUVENS ───────────────────────────────────────────────────────────
