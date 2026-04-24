@@ -524,12 +524,6 @@ function buildLevel(idx){
       minX:p.x+2,maxX:p.x+p.w-30});
   });
 
-  // Espinhos aleatórios: ~40% das plataformas pares, 1 espinho por plataforma
-  [0,2,4,6,8,10,12,14].forEach(pi=>{
-    const p=elevPlats[pi]; if(!p||Math.random()>0.4) return;
-    const sx=p.x+10+Math.floor(Math.random()*Math.max(1,p.w-32));
-    spikes.push({x:sx,y:p.y-10,w:12,h:10});
-  });
 
   // Random flower on the ground (easy to find)
   const gfx=[300,700,1100,1500,1900,2200];
@@ -633,14 +627,6 @@ function update(){
     boom(flower.x+flower.w/2,flower.y,'#ff88cc',10);
   }
 
-  // Spike collision (lose life if touching spike and not invincible)
-  if(plInvince===0){
-    for(const s of spikes){
-      if(pl.x+pl.w>s.x+2&&pl.x<s.x+s.w-2&&pl.y+pl.h>s.y&&pl.y<s.y+s.h){
-        loseLife(); break;
-      }
-    }
-  }
 
   for(let ei=enemies.length-1;ei>=0;ei--){
     const e=enemies[ei];
@@ -808,13 +794,6 @@ function draw(){
       ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.fill();
       ctx.strokeStyle='#CC8800'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.stroke();
     }
-  }
-  // Spikes
-  for(const s of spikes){
-    ctx.fillStyle='#aaaaaa';
-    ctx.beginPath(); ctx.moveTo(s.x,s.y+s.h); ctx.lineTo(s.x+s.w/2,s.y); ctx.lineTo(s.x+s.w,s.y+s.h); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='#dddddd';
-    ctx.beginPath(); ctx.moveTo(s.x+2,s.y+s.h); ctx.lineTo(s.x+s.w/2,s.y+2); ctx.lineTo(s.x+s.w-2,s.y+s.h); ctx.closePath(); ctx.fill();
   }
   // Flower power-up
   if(flower&&!flower.collected) drawFlower(flower);
