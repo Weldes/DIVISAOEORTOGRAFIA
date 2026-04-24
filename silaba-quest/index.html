@@ -690,13 +690,18 @@ function openQuiz(qi){
   const lvl=LEVELS[lvlIdx];
   if(qi>=lvl.qs.length) return;
   quizOpen=true;
-  // Shuffle options with Fisher-Yates, remapping correct index
+  // Shuffle options: garante que a resposta correta NUNCA fique na posição original
   const orig=lvl.qs[qi];
-  const order=[...orig.o.keys()];
-  for(let k=order.length-1;k>0;k--){
-    const j=Math.floor(Math.random()*(k+1));
-    [order[k],order[j]]=[order[j],order[k]];
-  }
+  let order;
+  let attempts=0;
+  do {
+    order=orig.o.map((_,i)=>i);
+    for(let k=order.length-1;k>0;k--){
+      const j=Math.floor(Math.random()*(k+1));
+      [order[k],order[j]]=[order[j],order[k]];
+    }
+    attempts++;
+  } while(order.indexOf(orig.c)===orig.c && attempts<20);
   curQ={...orig, o:order.map(i=>orig.o[i]), c:order.indexOf(orig.c)};
 
   document.getElementById('quizTitle').textContent=`${lvl.name} · ${curQ.r}`;
