@@ -190,7 +190,7 @@ const supa = SB_READY ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null
 async function dbSaveScore(nome, turma, pontuacao, fases){
   if(!SB_READY){ localSave(nome,turma,pontuacao,fases); return; }
   try {
-    const { error } = await supa.from('ranking').insert({ nome, turma, pontuacao, fases });
+    const { error } = await supa.from('ranking_classes').insert({ nome, turma, pontuacao, fases });
     if(error) throw error;
   } catch(e){ console.warn('Supabase erro:', e); localSave(nome,turma,pontuacao,fases); }
 }
@@ -199,7 +199,7 @@ async function dbLoadRanking(){
   if(!SB_READY){ return localLoad(); }
   try {
     const { data, error } = await supa
-      .from('ranking')
+      .from('ranking_classes')
       .select('*')
       .order('pontuacao', { ascending: false })
       .limit(20);
