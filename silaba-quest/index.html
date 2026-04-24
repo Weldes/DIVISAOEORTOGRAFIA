@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sílaba Quest — A Aventura das Palavras</title>
+<title>Classes Quest — A Aventura da Gramática</title>
 
 <!-- Supabase SDK (Banco de dados) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -145,7 +145,7 @@ canvas { display:block; }
       <label>Nome completo</label>
       <input id="inNome" type="text" placeholder="Ex: João da Silva" maxlength="40" autocomplete="off">
       <label>Turma</label>
-      <input id="inTurma" type="text" placeholder="Ex: 1A, 1B, 1C..." maxlength="10" autocomplete="off">
+      <input id="inTurma" type="text" placeholder="Ex: 9A, 9B, 9C..." maxlength="10" autocomplete="off">
       <p class="err" id="regErr"></p>
       <button class="btn-gold" onclick="submitReg()">▶ Começar a jogar!</button>
       <button class="btn-ghost" onclick="showRanking(true)">🏆 Ver Ranking antes de jogar</button>
@@ -213,10 +213,10 @@ function localSave(nome,turma,pontuacao,fases){
   const all = localLoad();
   all.push({ nome, turma, pontuacao, fases, dataStr: fmtDate(new Date()) });
   all.sort((a,b)=>b.pontuacao-a.pontuacao);
-  localStorage.setItem('silaba_ranking', JSON.stringify(all.slice(0,50)));
+  localStorage.setItem('classes_ranking', JSON.stringify(all.slice(0,50)));
 }
 function localLoad(){
-  try { return JSON.parse(localStorage.getItem('silaba_ranking')||'[]'); }
+  try { return JSON.parse(localStorage.getItem('classes_ranking')||'[]'); }
   catch{ return []; }
 }
 function fmtDate(d){
@@ -228,133 +228,133 @@ function fmtDate(d){
 // ════════════════════════════════════════════════════════════════════════
 const LEVELS = [
   {
-    name:"Floresta das Sílabas", bg:"#87CEEB",
-    groundColor:"#228B22", groundBase:"#8B4513", cloud:"rgba(255,255,255,0.85)",
+    name:"Reino do Substantivo", bg:"#1a4a2a",
+    groundColor:"#2d6e2d", groundBase:"#1a3d0f", cloud:"rgba(255,255,255,0.8)",
     qs:[
-      { t:"Qual é a divisão silábica correta de 'BÍCEPS'?",
-        r:"Regra 2: Consoante solta fica na sílaba anterior",
-        o:["BÍ-CEPS","BÍ-CE-PS","BÍ-C-EPS","BI-CEPS"], c:0,
-        e:"BÍ-CEPS — A consoante P fica na sílaba anterior pois não há vogal após ela." },
-      { t:"Qual é a divisão silábica correta de 'TUNGSTÊNIO'?",
-        r:"Regra 2: Consoante solta fica na sílaba anterior",
-        o:["TUN-GS-TÊ-NIO","TUNGS-TÊ-NIO","TUNGS-TÊ-NI-O","TUN-GSTÊ-NIO"], c:1,
-        e:"TUNGS-TÊ-NIO — O grupo NGS fica junto na primeira sílaba." },
-      { t:"Qual é a divisão silábica correta de 'TRABALHO'?",
-        r:"Regra 3: Dígrafos NH, CH, LH ficam na mesma sílaba",
-        o:["TRA-BA-LH-O","TRAB-A-LHO","TRA-BA-LHO","TRA-BAL-HO"], c:2,
-        e:"TRA-BA-LHO — O dígrafo LH nunca é separado: fica sempre na mesma sílaba." },
-      { t:"Qual é a divisão silábica correta de 'PROBLEMA'?",
-        r:"Regra 4: Encontros consonantais perfeitos ficam juntos",
-        o:["PROB-LE-MA","PRO-BLE-MA","P-ROB-LE-MA","PRO-BLEM-A"], c:1,
-        e:"PRO-BLE-MA — BL é encontro consonantal perfeito e fica sempre na mesma sílaba." },
-      { t:"Qual é a divisão silábica correta de 'CARRO'?",
-        r:"Regra 5: Dígrafos RR e SS ficam sempre separados",
-        o:["CARR-O","CA-RRO","CAR-RO","C-AR-RO"], c:2,
-        e:"CAR-RO — O dígrafo RR é sempre separado na divisão silábica." },
+      { t:"O substantivo é a classe gramatical que...",
+        r:"Substantivo — Definição",
+        o:["Expressa qualidade ou característica do ser","Dá nome a seres, coisas, lugares, sentimentos e ações","Substitui o substantivo na frase","Indica ação ou estado do ser"], c:1,
+        e:"O SUBSTANTIVO nomeia tudo que existe: seres, coisas, lugares, sentimentos e fenômenos. Ex: cidade, amor, chuva." },
+      { t:"Qual das opções contém APENAS substantivos?",
+        r:"Substantivo — Identificação",
+        o:["bonito, alto, feliz","correr, pular, cantar","amor, cidade, felicidade","muito, pouco, bem"], c:2,
+        e:"'amor', 'cidade' e 'felicidade' são substantivos: nomeiam, respectivamente, um sentimento, um lugar e um estado." },
+      { t:"Os artigos 'o', 'a', 'os', 'as' são chamados de artigos...",
+        r:"Artigo — Definido e Indefinido",
+        o:["indefinidos","neutros","definidos","pronominais"], c:2,
+        e:"'o', 'a', 'os', 'as' são artigos DEFINIDOS: indicam um ser já conhecido ou determinado. 'um/uma' são indefinidos." },
+      { t:"Em 'Uma casa bonita estava à venda', o artigo 'Uma' é:",
+        r:"Artigo — Indefinido",
+        o:["definido, pois especifica a casa","indefinido, pois não determina qual casa","numeral cardinal","pronome demonstrativo"], c:1,
+        e:"'Uma' é artigo INDEFINIDO: não especifica qual casa, indica apenas qualquer casa entre várias possíveis." },
+      { t:"Em 'O valor da amizade é imenso', o substantivo 'amizade' é:",
+        r:"Substantivo — Concreto e Abstrato",
+        o:["concreto, pois existe fisicamente","coletivo, pois representa um grupo","próprio, pois é um nome específico","abstrato, pois não tem existência física independente"], c:3,
+        e:"'Amizade' é substantivo ABSTRATO: designa um sentimento, algo que não existe por si só sem um ser que o experiencie." },
     ]
   },
   {
-    name:"Gruta dos Hiatos", bg:"#1a2a4a",
-    groundColor:"#5a3010", groundBase:"#3a1a05", cloud:"rgba(180,180,255,0.5)",
+    name:"Terra do Adjetivo", bg:"#4a1a0a",
+    groundColor:"#8B4513", groundBase:"#5a2800", cloud:"rgba(255,220,180,0.6)",
     qs:[
-      { t:"Qual é a divisão silábica correta de 'CAATINGA'?",
-        r:"Regra 6: Vogais iguais ficam sempre separadas",
-        o:["CAA-TIN-GA","CA-A-TIN-GA","CA-AT-IN-GA","CAAT-IN-GA"], c:1,
-        e:"CA-A-TIN-GA — Vogais iguais são sempre separadas em sílabas distintas." },
-      { t:"Qual é a divisão silábica correta de 'BAÚ'?",
-        r:"Regra 7: Vogais de hiatos ficam em sílabas separadas",
-        o:["BAÚ","BA-Ú","B-AÚ","BA-U"], c:1,
-        e:"BA-Ú — Hiato: as vogais A e U estão em sílabas separadas." },
-      { t:"Qual é a divisão silábica correta de 'FLÁVIA'?",
-        r:"Regra 8: Sons vocálicos dos ditongos ficam na mesma sílaba",
-        o:["FLÁ-VI-A","FLÁ-VIA","FL-Á-VIA","FLÁ-V-IA"], c:1,
-        e:"FLÁ-VIA — O ditongo IA fica na mesma sílaba." },
-      { t:"Qual é a divisão silábica correta de 'PARAGUAI'?",
-        r:"Regra 9: Sons vocálicos dos tritongos ficam na mesma sílaba",
-        o:["PA-RA-GU-AI","PAR-A-GUAI","PA-RA-GUAI","PA-RAG-UAI"], c:2,
-        e:"PA-RA-GUAI — O tritongo UAI fica sempre na mesma sílaba." },
-      { t:"Como dividir 'HISTÓRIA' (com acento)?",
-        r:"Observação 1: Com acento, sons crescentes finais ficam juntos",
-        o:["HIS-TÓ-RI-A","HIS-TÓ-RIA","HIS-TO-RI-A","HIS-TOR-IA"], c:1,
-        e:"HIS-TÓ-RIA — Com acento na vogal anterior, os sons vocálicos crescentes finais ficam juntos." },
+      { t:"O adjetivo é a classe gramatical que...",
+        r:"Adjetivo — Definição",
+        o:["nomeia seres e coisas","indica ação ou estado do ser","expressa qualidade, estado ou característica do substantivo","substitui o substantivo"], c:2,
+        e:"O ADJETIVO caracteriza ou qualifica o substantivo, atribuindo-lhe uma qualidade, estado ou característica." },
+      { t:"Em 'A aluna dedicada foi aprovada', o adjetivo é:",
+        r:"Adjetivo — Identificação",
+        o:["aluna","foi","aprovada","dedicada"], c:3,
+        e:"'Dedicada' é o adjetivo: qualifica o substantivo 'aluna', indicando uma característica dela." },
+      { t:"Qual é o grau comparativo de SUPERIORIDADE de 'belo'?",
+        r:"Adjetivo — Grau Comparativo",
+        o:["belíssimo","tão belo quanto","menos belo que","mais belo que"], c:3,
+        e:"O comparativo de SUPERIORIDADE se forma com 'mais... que/do que'. 'Belíssimo' é superlativo absoluto." },
+      { t:"Os numerais indicam:",
+        r:"Numeral — Definição",
+        o:["qualidade dos seres","circunstância de tempo ou lugar","ação ou estado dos seres","quantidade, ordem, múltiplo ou fração dos seres"], c:3,
+        e:"NUMERAIS indicam quantidade (cardinal), ordem (ordinal), múltiplo (multiplicativo) ou fração (fracionário)." },
+      { t:"Em 'Fui o primeiro da fila', o numeral 'primeiro' é:",
+        r:"Numeral — Ordinal",
+        o:["cardinal — indica quantidade","multiplicativo — indica múltiplo","fracionário — indica fração","ordinal — indica ordem ou posição"], c:3,
+        e:"'Primeiro' é numeral ORDINAL: indica a posição (1.º) na fila. Outros: segundo, terceiro, décimo..." },
     ]
   },
   {
-    name:"Reino da Acentuação", bg:"#1a1040",
+    name:"Palácio do Pronome", bg:"#0a0a3a",
+    groundColor:"#2233aa", groundBase:"#111155", cloud:"rgba(180,180,255,0.5)",
+    qs:[
+      { t:"O pronome é a classe gramatical que...",
+        r:"Pronome — Definição",
+        o:["nomeia seres e coisas","expressa qualidade do substantivo","indica ação ou estado","substitui ou acompanha o substantivo, a ele se referindo"], c:3,
+        e:"O PRONOME substitui ou determina o substantivo, estabelecendo referência com ele no discurso." },
+      { t:"Em 'Ela chegou cedo à escola', o pronome 'Ela' é:",
+        r:"Pronome Pessoal — Reto",
+        o:["pronome demonstrativo","pronome possessivo","pronome relativo","pronome pessoal do caso reto"], c:3,
+        e:"'Ela' é pronome PESSOAL DO CASO RETO: exerce a função de sujeito da oração." },
+      { t:"Em 'Este caderno é meu', os pronomes são respectivamente:",
+        r:"Pronome Demonstrativo e Possessivo",
+        o:["pessoal e relativo","relativo e indefinido","indefinido e pessoal","demonstrativo e possessivo"], c:3,
+        e:"'Este' é DEMONSTRATIVO (indica proximidade do falante) e 'meu' é POSSESSIVO (indica posse)." },
+      { t:"'O aluno que tirou nota máxima foi premiado.' O pronome 'que' é:",
+        r:"Pronome Relativo",
+        o:["pronome pessoal","pronome demonstrativo","pronome indefinido","pronome relativo"], c:3,
+        e:"'Que' é PRONOME RELATIVO: retoma o antecedente 'aluno' e introduz uma oração adjetiva." },
+      { t:"'Alguém deixou a mochila no corredor.' O pronome 'Alguém' é:",
+        r:"Pronome Indefinido",
+        o:["pronome demonstrativo","pronome relativo","pronome interrogativo","pronome indefinido"], c:3,
+        e:"'Alguém' é PRONOME INDEFINIDO: refere-se a uma pessoa de forma vaga, não determinada." },
+    ]
+  },
+  {
+    name:"Fortaleza do Verbo", bg:"#1a0a3a",
     groundColor:"#5a0070", groundBase:"#2a0030", cloud:"rgba(200,150,255,0.4)",
     qs:[
-      { t:"Por que 'MÊS' é acentuado?",
-        r:"Regra 1: Monossílabos tônicos terminados em A, E, O",
-        o:["É paroxítona","É monossílabo tônico terminado em E","É oxítona terminada em ES","É proparoxítona"], c:1,
-        e:"Regra 1: Acentuam-se os monossílabos tônicos (substantivos, adjetivos, verbos...) terminados em A, E, O." },
-      { t:"Por que 'CAFÉ' é acentuado?",
-        r:"Regra 2: Oxítonas terminadas em A, E, O",
-        o:["É proparoxítona","É paroxítona terminada em E","É oxítona terminada em E","É monossílabo tônico"], c:2,
-        e:"Regra 2: Oxítonas terminadas em A, E, O (seguidos ou não de S, EM, ENS) são acentuadas." },
-      { t:"'AMÁVEL' é acentuado porque...",
-        r:"Regra 3: Paroxítonas com terminações especiais",
-        o:["É proparoxítona","É oxítona terminada em L","É paroxítona terminada em L","É monossílabo tônico"], c:2,
-        e:"Regra 3: Paroxítonas terminadas em L, N, R, X, I, UM, UNS, Ã, ÃO, PS são acentuadas." },
-      { t:"Por que 'FÍSICA' é acentuada?",
-        r:"Regra 4: Proparoxítonas sempre se acentuam",
-        o:["É oxítona terminada em A","É paroxítona terminada em A","É proparoxítona — acento na antepenúltima sílaba","É monossílabo tônico"], c:2,
-        e:"Regra 4: Todas as proparoxítonas são acentuadas em qualquer situação: FÍ-SI-CA." },
-      { t:"Por que 'MELANCIA' (sem acento) se divide ME-LAN-CI-A?",
-        r:"Observação 1: Sem acento, sons crescentes finais ficam separados",
-        o:["Regra do hiato","Porque termina em A","Sem acento, sons vocálicos crescentes finais ficam separados","Porque é proparoxítona"], c:2,
-        e:"Obs.1: Sem acento na vogal anterior, os sons vocálicos crescentes terminais ficam separados: ME-LAN-CI-A." },
+      { t:"O verbo é a classe gramatical que indica:",
+        r:"Verbo — Definição",
+        o:["qualidade ou característica do ser","quantidade e ordem dos seres","circunstâncias de tempo, lugar e modo","ação, estado, fenômeno ou mudança de estado"], c:3,
+        e:"O VERBO indica ação (correr), estado (ser, estar), fenômeno natural (chover) ou mudança de estado (tornar-se)." },
+      { t:"Em 'O sol nasceu brilhante hoje', o verbo está no:",
+        r:"Verbo — Tempo Verbal",
+        o:["presente do indicativo","pretérito imperfeito do indicativo","futuro do presente","pretérito perfeito do indicativo"], c:3,
+        e:"'Nasceu' é pretérito PERFEITO DO INDICATIVO: indica ação concluída no passado." },
+      { t:"O advérbio é a classe que:",
+        r:"Advérbio — Definição",
+        o:["substitui o substantivo na frase","liga palavras ou orações","nomeia seres e sentimentos","modifica o verbo, adjetivo ou outro advérbio indicando circunstâncias"], c:3,
+        e:"O ADVÉRBIO modifica o verbo, o adjetivo ou outro advérbio, indicando circunstâncias de modo, tempo, lugar etc." },
+      { t:"Em 'Ele estudou intensamente para a prova', o advérbio indica:",
+        r:"Advérbio — Classificação",
+        o:["circunstância de tempo","circunstância de lugar","circunstância de negação","circunstância de modo"], c:3,
+        e:"'Intensamente' é advérbio de MODO: indica como a ação foi realizada. Advérbios de modo geralmente terminam em -mente." },
+      { t:"Qual é a função de 'ontem' em 'Ontem choveu muito'?",
+        r:"Advérbio — Tempo",
+        o:["advérbio de modo","advérbio de lugar","advérbio de intensidade","advérbio de tempo"], c:3,
+        e:"'Ontem' é advérbio de TEMPO: indica quando a ação ocorreu. Outros: hoje, amanhã, sempre, nunca, já." },
     ]
   },
   {
-    name:"Palácio das Regras Especiais", bg:"#100505",
-    groundColor:"#8B0000", groundBase:"#4a0000", cloud:"rgba(255,100,100,0.3)",
-    qs:[
-      { t:"Por que 'CÉU' é acentuado?",
-        r:"Regra Especial 1: Ditongos abertos OI, EU, EI no fim da palavra",
-        o:["É proparoxítona","É ditongo aberto EU no fim da palavra","É monossílabo tônico em U","É paroxítona"], c:1,
-        e:"Regra Especial 1: Ditongos abertos OI, EU, EI no fim da palavra são acentuados: céu, véu, herói, anéis." },
-      { t:"Por que 'SAÍDA' é acentuada?",
-        r:"Regra Especial 2: Hiatos tônicos I/U sozinhos ou seguidos de S",
-        o:["É oxítona terminada em A","É proparoxítona","Hiato tônico com I sozinho ou seguido de S","É monossílabo tônico"], c:2,
-        e:"Regra Especial 2: Hiatos tônicos I/U sozinhos ou seguidos de S são acentuados: saída, juíza, baú." },
-      { t:"Qual é a diferença entre PÔR e POR?",
-        r:"Acentos diferenciais",
-        o:["Não há diferença gramatical","PÔR é verbo, POR é preposição","POR é verbo, PÔR é preposição","Ambos são verbos"], c:1,
-        e:"Acento diferencial: PÔR (verbo) × POR (preposição). Também: pôde (passado) × pode (presente)." },
-      { t:"Por que 'RAINHA' não tem o I acentuado?",
-        r:"Regra Especial 2: Hiato longe de NH não é acentuado",
-        o:["I nunca é acentuado em hiatos","Porque é paroxítona terminada em A","Hiatos com I/U não são acentuados quando antes de NH","Não existe regra para isso"], c:2,
-        e:"Regra Especial 2: Hiatos com I/U NÃO são acentuados quando seguidos de NH: rainha, moinho." },
-      { t:"Qual forma do plural é correta para o verbo TER?",
-        r:"Dica 1: Verbos TER e VIR recebem circunflexo no plural",
-        o:["Tems","Têem","Têm","Tem"], c:2,
-        e:"Dica 1: TER e VIR recebem circunflexo no plural, sem duplicar vogal: ele tem → eles têm." },
-    ]
-  },
-  {
-    name:"Torre das Dicas Finais", bg:"#0a0a0a",
+    name:"Torre das Conectivas", bg:"#0a0a0a",
     groundColor:"#B8860B", groundBase:"#5a4000", cloud:"rgba(255,215,0,0.25)",
     qs:[
-      { t:"Qual é o plural correto de VEM (verbo VIR)?",
-        r:"Dica 1: Verbos TER e VIR — plural com circunflexo",
-        o:["Vems","Vêem","Vêm","Véem"], c:2,
-        e:"Dica 1: O verbo VIR recebe apenas circunflexo no plural, sem duplicar a vogal: ele vem → eles vêm." },
-      { t:"Como se conjuga DETER (plural, 3.ª pessoa)?",
-        r:"Dica 2: Derivados de TER — agudo no singular, circunflexo no plural",
-        o:["Detem","Detêm","Détêm","Detém"], c:1,
-        e:"Dica 2: Derivados de TER recebem agudo no singular (detém) e circunflexo no plural (detêm)." },
-      { t:"Qual é o plural correto de CRÊ (verbo CRER)?",
-        r:"Dica 3: Crer, dar, ler, ver — duplicam vogal no plural sem acento",
-        o:["Crêem","Créem","Creem","Crêm"], c:2,
-        e:"Dica 3: Crer, dar, ler, ver e derivados duplicam a vogal no plural sem acento: crê → creem." },
-      { t:"Quando a palavra QUE é acentuada (quê)?",
-        r:"Dica 4: O acento em QUÊ indica tonicidade",
-        o:["Sempre que aparecer na frase","Quando é conjunção","Quando é tônico: função substantiva, fim de frase ou antes de pausa","Nunca é acentuada"], c:2,
-        e:"Dica 4: QUÊ leva acento quando tônico: função substantiva (um quê de...), fim de frase (medo de quê?)." },
-      { t:"Por que HIFENS (plural) não tem acento?",
-        r:"Dica 6: Paroxítonas terminadas em S não são acentuadas",
-        o:["Plural nunca tem acento","Hífen tem acento (parox. em N); no plural termina em NS — sem acento","Erro gramatical","Porque é oxítona no plural"], c:1,
-        e:"Dica 6: HÍFEN (paroxítona em N → acentuada). No plural HIFENS termina em NS → sem acento." },
+      { t:"A preposição é a classe gramatical que:",
+        r:"Preposição — Definição",
+        o:["indica ação ou estado do ser","expressa qualidade do substantivo","expressa emoção ou estado de espírito","liga dois termos estabelecendo relação entre eles"], c:3,
+        e:"A PREPOSIÇÃO é palavra invariável que liga dois termos, estabelecendo relação entre eles. Ex: de, em, para, com, por." },
+      { t:"Em 'Fui à escola de ônibus', as preposições são:",
+        r:"Preposição — Identificação",
+        o:["escola e ônibus","Fui e escola","à e ônibus","à e de"], c:3,
+        e:"'à' (contração de a + a) e 'de' são preposições. Elas ligam termos e estabelecem relações entre eles." },
+      { t:"A conjunção é a classe gramatical que:",
+        r:"Conjunção — Definição",
+        o:["modifica o verbo indicando circunstâncias","expressa qualidade do substantivo","substitui o substantivo na frase","liga palavras ou orações de mesmo valor ou une orações"], c:3,
+        e:"A CONJUNÇÃO liga palavras de mesma função ou une orações coordenadas ou subordinadas." },
+      { t:"'Estudei muito, mas não passei.' A conjunção 'mas' é:",
+        r:"Conjunção — Adversativa",
+        o:["aditiva (adiciona ideias)","conclusiva (indica conclusão)","explicativa (explica a causa)","adversativa (indica oposição ou contraste)"], c:3,
+        e:"'Mas' é conjunção ADVERSATIVA: indica contraste entre as ideias. Outras adversativas: porém, contudo, todavia." },
+      { t:"'Uau! Que gol incrível!' A palavra 'Uau' pertence à classe:",
+        r:"Interjeição — Definição",
+        o:["substantivo","adjetivo","advérbio de intensidade","interjeição"], c:3,
+        e:"'Uau' é INTERJEIÇÃO: exprime emoção ou estado de espírito de forma súbita. São invariáveis e acompanhadas de '!'." },
     ]
   },
 ];
@@ -444,7 +444,13 @@ function closeRanking(){
 }
 
 async function loadAndRenderRanking(){
-  const rows = await dbLoadRanking();
+  let rows = await dbLoadRanking();
+  // Professor sempre aparece no topo com 1000 pts acima do máximo possível
+  // Máximo possível: 28 moedas×5fases×10 + 25 acertos×150 + ~60 inimigos×10 ≈ 5750
+  const TEACHER = { nome:'Weldes Charles', turma:'Professor', pontuacao:6750, fases:LEVELS.length, dataStr:'01/01/26' };
+  rows = rows.filter(r => !(r.nome==='Weldes Charles' && r.turma==='Professor'));
+  rows.unshift(TEACHER);
+  rows.sort((a,b) => b.pontuacao - a.pontuacao);
   document.getElementById('rankLoading').style.display='none';
   document.getElementById('rankScroll').scrollTop = 0;
 
@@ -729,7 +735,7 @@ function answer(i){
   exp.style.display='block';
   document.getElementById('quizCont').style.display='block';
   if(right){qCorrect++;score+=150;boom(pl.x+pl.w/2,pl.y,'#FFD700',12);}
-  else{score-=20;}
+  else{score=Math.max(0,score-50);}
 }
 function closeQuiz(){
   document.getElementById('quiz').style.display='none';
@@ -982,10 +988,10 @@ function drawTitle(){
   // Título
   ctx.shadowColor='#ff8800'; ctx.shadowBlur=14;
   ctx.fillStyle='#FFD700'; ctx.font='bold 50px serif'; ctx.textAlign='center';
-  ctx.fillText('SÍLABA QUEST',W/2,52);
+  ctx.fillText('CLASSES QUEST',W/2,52);
   ctx.shadowBlur=0;
   ctx.fillStyle='#fff'; ctx.font='17px serif';
-  ctx.fillText('A Aventura das Palavras',W/2,76);
+  ctx.fillText('A Aventura da Gramática',W/2,76);
   ctx.fillStyle='#FFD700'; ctx.font='bold 13px Courier New';
   ctx.fillText('✎  Prof. Weldes Charles',W/2,97);
   ctx.strokeStyle='rgba(255,215,0,0.4)'; ctx.lineWidth=1;
@@ -1075,7 +1081,7 @@ function drawOver(){
   ctx.fillText(playerName+' · '+playerTurma,W/2,185);
   ctx.fillText('Pontuação registrada: '+score,W/2,215);
   ctx.fillStyle='#ffaa44'; ctx.font='14px Courier New';
-  ctx.fillText('Revise o conteúdo e tente novamente!',W/2,255);
+  ctx.fillText('Revise as Classes Gramaticais e tente de novo!',W/2,255);
   // Botão ranking
   ctx.fillStyle='rgba(255,215,0,0.15)'; roundRect(ctx,W/2-150,278,300,36,8); ctx.fill();
   ctx.strokeStyle='#FFD700'; ctx.lineWidth=1; roundRect(ctx,W/2-150,278,300,36,8); ctx.stroke();
@@ -1102,32 +1108,36 @@ function drawWin(){
   ctx.fillStyle='#FFD700'; ctx.font='bold 52px serif'; ctx.textAlign='center';
   ctx.fillText('PARABÉNS!',W/2,75); ctx.shadowBlur=0;
   ctx.fillStyle='#aaffaa'; ctx.font='17px Courier New';
-  ctx.fillText('Você dominou todo o conteúdo!',W/2,108);
+  ctx.fillText('Você dominou as 10 Classes Gramaticais!',W/2,108);
   ctx.fillStyle='#fff'; ctx.font='13px Courier New';
   ctx.fillText(playerName+' · Turma '+playerTurma,W/2,132);
-  ['✓ Regras de Divisão Silábica (Regras 1 a 10)',
-   '✓ Observações de Divisão Silábica',
-   '✓ Acentuação Gráfica — Regras Gerais',
-   '✓ Acentuação Gráfica — Regras Especiais',
-   '✓ Dicas de Acentuação Gráfica'
-  ].forEach((l,i)=>{ ctx.fillStyle='#cfc'; ctx.font='13px Courier New'; ctx.fillText(l,W/2,160+i*24); });
-  ctx.fillStyle='#FFD700'; ctx.font='bold 16px Courier New';
-  ctx.fillText('Pontuação final: '+score,W/2,300);
-  ctx.font='42px serif'; ctx.fillText('⭐⭐⭐',W/2,348);
+  ['✓ Substantivo — nomeia seres, coisas e sentimentos',
+   '✓ Artigo — determina o substantivo (definido/indefinido)',
+   '✓ Adjetivo — qualifica o substantivo',
+   '✓ Numeral — indica quantidade, ordem, múltiplo ou fração',
+   '✓ Pronome — substitui ou acompanha o substantivo',
+   '✓ Verbo — indica ação, estado ou fenômeno',
+   '✓ Advérbio — modifica verbo, adjetivo ou advérbio',
+   '✓ Preposição — liga termos estabelecendo relações',
+   '✓ Conjunção — liga palavras ou orações',
+   '✓ Interjeição — exprime emoções e estados de espírito'
+  ].forEach((l,i)=>{ ctx.fillStyle='#cfc'; ctx.font='12px Courier New'; ctx.fillText(l,W/2,158+i*22); });
+  ctx.fillStyle='#FFD700'; ctx.font='bold 15px Courier New';
+  ctx.fillText('Pontuação final: '+score+'  ⭐⭐⭐',W/2,374);
   // Botão ranking
-  ctx.fillStyle='rgba(255,215,0,0.15)'; roundRect(ctx,W/2-150,362,300,36,8); ctx.fill();
-  ctx.strokeStyle='#FFD700'; ctx.lineWidth=1; roundRect(ctx,W/2-150,362,300,36,8); ctx.stroke();
-  ctx.fillStyle='#FFD700'; ctx.font='bold 14px Courier New';
-  ctx.fillText('🏆 Ver Ranking',W/2,386);
+  ctx.fillStyle='rgba(255,215,0,0.15)'; roundRect(ctx,W/2-150,390,300,32,8); ctx.fill();
+  ctx.strokeStyle='#FFD700'; ctx.lineWidth=1; roundRect(ctx,W/2-150,390,300,32,8); ctx.stroke();
+  ctx.fillStyle='#FFD700'; ctx.font='bold 13px Courier New';
+  ctx.fillText('🏆 Ver Ranking',W/2,412);
   if(Math.floor(Date.now()/550)%2){
     ctx.fillStyle='#aaffff'; ctx.font='13px Courier New';
-    ctx.fillText('ENTER para jogar novamente',W/2,H-12);
+    ctx.fillText('ENTER para jogar novamente',W/2,H-4);
   }
   canvas.onclick=e=>{
     if(state!=='win') return;
     const r=canvas.getBoundingClientRect();
     const mx=(e.clientX-r.left)*(W/r.width), my=(e.clientY-r.top)*(H/r.height);
-    if(mx>=W/2-150&&mx<=W/2+150&&my>=362&&my<=398){ canvas.onclick=null; showRanking(false); }
+    if(mx>=W/2-150&&mx<=W/2+150&&my>=390&&my<=422){ canvas.onclick=null; showRanking(false); }
     else{ canvas.onclick=null; showReg(); }
   };
 }
