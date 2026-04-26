@@ -497,32 +497,23 @@ function buildLevel(idx){
   for(let i=0;i<28;i++)
     coins.push({x:120+i*95+Math.random()*40,y:GROUND_Y-80-Math.random()*90,done:false});
 
-  // Inimigos no chão (velocidade cresce a cada fase)
+  // Inimigos no chão — apenas 2 (↓60% removidos)
   const spd = 1.4 + idx * 0.3;
-  [250,650,1050,1450,1850,2250].forEach((ex,i)=>{
+  [750, 1650].forEach((ex,i)=>{
     enemies.push({x:ex,y:GROUND_Y-28,w:28,h:28,
       vx:i%2===0?spd:-spd,dead:false,deadTimer:0,
-      minX:Math.max(10,ex-180),maxX:Math.min(LW-30,ex+180)});
+      minX:Math.max(10,ex-200),maxX:Math.min(LW-30,ex+200)});
   });
 
-  // Inimigos nas plataformas de índice ímpar
-  [1,3,5,7,9,11].forEach(pi=>{
+  // Inimigos nas plataformas — apenas 2 (↓60% removidos)
+  [3, 9].forEach(pi=>{
     const p=elevPlats[pi]; if(!p||p.w<50) return;
     enemies.push({x:p.x+10,y:p.y-28,w:28,h:28,
       vx:1.1*(Math.random()>0.5?1:-1),dead:false,deadTimer:0,
       minX:p.x+2,maxX:p.x+p.w-30});
   });
 
-  // Espinhos aleatórios: ~40% das plataformas pares, 1 espinho por plataforma
-  [0,2,4,6,8,10,12,14].forEach(pi=>{
-    const p=elevPlats[pi]; if(!p||Math.random()>0.4) return;
-    const sx=p.x+10+Math.floor(Math.random()*Math.max(1,p.w-32));
-    spikes.push({x:sx,y:p.y-10,w:12,h:10,platform:true});
-  });
-  // Espinhos no chão
-  [420,820,1280,1680,2080,2480].forEach(sx=>{
-    spikes.push({x:sx,y:GROUND_Y-16,w:32,h:16,platform:false});
-  });
+  // Espinhos removidos
 
   // Flor aleatória no chão
   const gfx=[300,700,1100,1500,1900,2200];
