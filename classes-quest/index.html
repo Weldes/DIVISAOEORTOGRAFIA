@@ -515,15 +515,15 @@ function buildLevel(idx){
   for(let i=0;i<28;i++)
     coins.push({x:120+i*95+Math.random()*40,y:GROUND_Y-80-Math.random()*90,done:false});
 
-  // Ground enemies (3 patrulheiros no chão — 50% dos originais)
-  [450,1200,1950].forEach(ex=>{
+  // Ground enemies (6 patrulheiros no chão)
+  [250,650,1050,1450,1850,2250].forEach(ex=>{
     enemies.push({x:ex,y:GROUND_Y-28,w:28,h:28,
       vx:1.4*(Math.random()>0.5?1:-1),dead:false,deadTimer:0,
       minX:Math.max(10,ex-180),maxX:Math.min(LW-30,ex+180)});
   });
 
-  // Platform enemies on 2 elevated platforms (reduzido de 6 para 2)
-  [1,9].forEach(pi=>{
+  // Platform enemies on odd-indexed elevated platforms
+  [1,3,5,7,9,11].forEach(pi=>{
     const p=elevPlats[pi]; if(!p||p.w<50) return;
     enemies.push({x:p.x+10,y:p.y-28,w:28,h:28,
       vx:1.1*(Math.random()>0.5?1:-1),dead:false,deadTimer:0,
