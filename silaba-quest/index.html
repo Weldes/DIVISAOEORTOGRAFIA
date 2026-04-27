@@ -371,7 +371,7 @@ let lvlIdx=0, lives=3, score=0;
 let qAnswered=0, qCorrect=0;
 let platforms=[], qblocks=[], coins=[], particles=[], enemies=[], spikes=[], flowerBullets=[];
 let camX=0, quizOpen=false, curQ=null, plInvince=0;
-let flower=null, hasFlower=false;
+let flower=null, hasFlower=0; // contador: 0=sem flor, 1-3=tiros restantes
 let afterRankingFrom='title';         // onde voltar após fechar ranking
 
 // Dados do jogador
@@ -485,7 +485,7 @@ function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','
 // ════════════════════════════════════════════════════════════════════════
 function buildLevel(idx){
   platforms=[]; qblocks=[]; coins=[]; particles=[]; enemies=[]; spikes=[]; flowerBullets=[];
-  camX=0; qAnswered=0; qCorrect=0; plInvince=0; hasFlower=false; flower=null;
+  camX=0; qAnswered=0; qCorrect=0; plInvince=0; hasFlower=0; flower=null;
 
   platforms.push({x:0,y:GROUND_Y,w:LW,h:60,ground:true});
 
@@ -509,15 +509,15 @@ function buildLevel(idx){
   for(let i=0;i<28;i++)
     coins.push({x:120+i*95+Math.random()*40,y:GROUND_Y-80-Math.random()*90,done:false});
 
-  // Ground enemies (6 patrulheiros no chão)
-  [250,650,1050,1450,1850,2250].forEach(ex=>{
+  // Ground enemies — 2 (↓60% removidos)
+  [750,1800].forEach((ex,i)=>{
     enemies.push({x:ex,y:GROUND_Y-28,w:28,h:28,
-      vx:1.4*(Math.random()>0.5?1:-1),dead:false,deadTimer:0,
-      minX:Math.max(10,ex-180),maxX:Math.min(LW-30,ex+180)});
+      vx:1.4*(i%2===0?1:-1),dead:false,deadTimer:0,
+      minX:Math.max(10,ex-200),maxX:Math.min(LW-30,ex+200)});
   });
 
-  // Platform enemies on odd-indexed elevated platforms
-  [1,3,5,7,9,11].forEach(pi=>{
+  // Platform enemies — 2 plataformas (↓60% removidos)
+  [3,9].forEach(pi=>{
     const p=elevPlats[pi]; if(!p||p.w<50) return;
     enemies.push({x:p.x+10,y:p.y-28,w:28,h:28,
       vx:1.1*(Math.random()>0.5?1:-1),dead:false,deadTimer:0,
@@ -565,8 +565,8 @@ function boom(x,y,col,n=8){
   }
 }
 function fireFlowerBullet(){
-  if(!hasFlower) return;
-  hasFlower=false;
+  if(hasFlower<=0) return;
+  hasFlower--;
   flowerBullets.push({x:pl.x+(pl.dir>0?pl.w:-14),y:pl.y+pl.h/2-8,vx:pl.dir*11,w:16,h:16});
   boom(pl.x+pl.w/2,pl.y+pl.h/2,'#ff88cc',8);
 }
@@ -623,7 +623,7 @@ function update(){
   if(flower&&!flower.collected&&
      pl.x+pl.w>flower.x&&pl.x<flower.x+flower.w&&
      pl.y+pl.h>flower.y&&pl.y<flower.y+flower.h){
-    flower.collected=true; hasFlower=true;
+    flower.collected=true; hasFlower=3;
     boom(flower.x+flower.w/2,flower.y,'#ff88cc',10);
   }
 
@@ -948,11 +948,11 @@ function drawHUD(){
   ctx.fillStyle='#FFD700';
   ctx.fillText('Perguntas: '+qAnswered+'/'+LEVELS[lvlIdx].qs.length,W-10,32);
   // Flower power indicator
-  if(hasFlower){
+  if(hasFlower>0){
     const pulse=0.8+Math.sin(Date.now()/180)*0.2;
     ctx.save(); ctx.globalAlpha=pulse;
     ctx.font='bold 12px Courier New'; ctx.textAlign='left'; ctx.fillStyle='#ff88ff';
-    ctx.fillText('🌸 [Z] DISPARAR FLOR!',W/2+16,15);
+    ctx.fillText(`🌸 [Z] DISPARAR  ${'●'.repeat(hasFlower)}${'○'.repeat(3-hasFlower)}`,W/2+16,15);
     ctx.restore();
   }
 }
