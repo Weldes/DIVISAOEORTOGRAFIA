@@ -580,7 +580,7 @@ function fireFlowerBullet(){
 
 function onEnemyKilled(){
   killCount++;
-  if(killCount%3===0){
+  if(killCount%5===0){
     lives++;
     boom(pl.x+pl.w/2,pl.y+pl.h/2,'#ff3355',14);
   }
@@ -954,9 +954,9 @@ function drawHUD(){
   ctx.fillStyle='rgba(0,0,0,0.72)'; ctx.fillRect(0,0,W,44);
   const maxShow=Math.min(lives+1,6);
   for(let i=0;i<maxShow;i++) drawHeart(14+i*28,12,i<lives?'#ff3355':'#553344');
-  const killProgress=killCount%3;
+  const killProgress=killCount%5;
   ctx.fillStyle='#aaffaa'; ctx.font='10px Courier New'; ctx.textAlign='left';
-  ctx.fillText('💀'+killProgress+'/3 → +❤️',14+maxShow*28+4,20);
+  ctx.fillText('💀'+killProgress+'/5 → +❤️',14+maxShow*28+4,20);
   ctx.fillStyle='#22C55E'; ctx.font='bold 15px Courier New'; ctx.textAlign='center';
   ctx.fillText('PONTOS: '+score,W/2,28);
   // Player name
