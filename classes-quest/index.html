@@ -11,87 +11,87 @@
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body {
-  background:#0d1117;
+  background:#0d1710;
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   min-height:100vh;
   font-family:'Courier New',monospace;
   overflow:hidden;
 }
-#wrap { position:relative; box-shadow:0 0 40px rgba(255,215,0,0.3); border-radius:4px; overflow:hidden; }
+#wrap { position:relative; box-shadow:0 0 40px rgba(34,197,94,0.3); border-radius:4px; overflow:hidden; }
 canvas { display:block; }
 
 /* ── OVERLAY BASE ─────────────────────────────────── */
 .overlay {
   display:none; position:absolute; top:0; left:0; width:100%; height:100%;
-  background:rgba(4,4,18,0.96);
+  background:rgba(4,18,4,0.96);
   flex-direction:column; align-items:center; justify-content:center;
   z-index:30;
 }
 .overlay.show { display:flex; }
 .panel {
-  border:2px solid #FFD700; border-radius:14px;
+  border:2px solid #22C55E; border-radius:14px;
   padding:28px 32px; width:520px; max-width:95%;
-  background:rgba(10,10,30,0.98); color:#fff;
+  background:rgba(4,20,4,0.98); color:#fff;
 }
-.panel h2 { color:#FFD700; text-align:center; font-size:18px; margin-bottom:20px; letter-spacing:1px; }
+.panel h2 { color:#22C55E; text-align:center; font-size:18px; margin-bottom:20px; letter-spacing:1px; }
 .panel h3 { color:#aaffaa; text-align:center; font-size:13px; margin-bottom:16px; }
 .panel label { display:block; font-size:12px; color:#aaa; margin-bottom:5px; margin-top:14px; }
 .panel input {
-  width:100%; padding:10px 12px; background:#1a1a3a;
+  width:100%; padding:10px 12px; background:#0d200d;
   border:1.5px solid #555; border-radius:8px;
   color:#fff; font-size:15px; font-family:'Courier New',monospace;
   outline:none; transition:border-color .2s;
 }
-.panel input:focus { border-color:#FFD700; }
+.panel input:focus { border-color:#22C55E; }
 .btn-gold {
   display:block; width:100%; margin-top:20px; padding:13px;
-  background:#FFD700; color:#000; border:none; border-radius:8px;
+  background:#22C55E; color:#000; border:none; border-radius:8px;
   font-size:16px; font-weight:bold; cursor:pointer;
   font-family:'Courier New',monospace; letter-spacing:1px;
   transition:background .15s;
 }
-.btn-gold:hover { background:#ffe566; }
+.btn-gold:hover { background:#4ade80; }
 .btn-ghost {
   display:block; width:100%; margin-top:10px; padding:10px;
   background:transparent; color:#888; border:1.5px solid #444; border-radius:8px;
   font-size:13px; cursor:pointer; font-family:'Courier New',monospace;
   transition:color .15s, border-color .15s;
 }
-.btn-ghost:hover { color:#FFD700; border-color:#FFD700; }
+.btn-ghost:hover { color:#22C55E; border-color:#22C55E; }
 .err { color:#ff6666; font-size:12px; text-align:center; margin-top:8px; min-height:18px; }
 
 /* ── QUIZ ─────────────────────────────────────────── */
 #quiz {
   display:none; position:absolute; top:50%; left:50%;
   transform:translate(-50%,-50%);
-  background:rgba(5,5,20,0.97); border:3px solid #FFD700;
+  background:rgba(4,18,4,0.97); border:3px solid #22C55E;
   border-radius:14px; padding:22px 24px 18px;
   width:700px; max-width:96%; z-index:20; color:#fff;
 }
-#quiz h2 { color:#FFD700; text-align:center; font-size:15px; margin-bottom:12px; letter-spacing:1px; }
+#quiz h2 { color:#22C55E; text-align:center; font-size:15px; margin-bottom:12px; letter-spacing:1px; }
 #quizQ { font-size:17px; text-align:center; line-height:1.5; margin-bottom:16px; color:#eee; }
 #quizOpts { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
 .obtn {
-  padding:11px 10px; border:2px solid #FFD700; background:transparent;
+  padding:11px 10px; border:2px solid #22C55E; background:transparent;
   color:#fff; font-size:14px; cursor:pointer; border-radius:8px;
   font-family:'Courier New',monospace; transition:background .15s,color .15s; text-align:center;
 }
-.obtn:hover:not(:disabled) { background:#FFD700; color:#000; }
+.obtn:hover:not(:disabled) { background:#22C55E; color:#000; }
 .obtn.ok  { background:#1a7a1a; border-color:#1a7a1a; cursor:default; }
 .obtn.bad { background:#7a1a1a; border-color:#7a1a1a; cursor:default; }
 #quizExp {
   display:none; margin-top:12px; padding:10px 12px;
-  background:rgba(255,215,0,0.08); border-left:3px solid #FFD700;
-  border-radius:6px; font-size:13px; color:#FFD700; line-height:1.5;
+  background:rgba(34,197,94,0.08); border-left:3px solid #22C55E;
+  border-radius:6px; font-size:13px; color:#22C55E; line-height:1.5;
 }
 #quizCont {
   display:none; margin-top:12px; width:100%; padding:11px;
-  background:#FFD700; color:#000; border:none; border-radius:8px;
+  background:#22C55E; color:#000; border:none; border-radius:8px;
   font-size:15px; font-weight:bold; cursor:pointer;
   font-family:'Courier New',monospace; letter-spacing:1px;
 }
-#quizCont:hover { background:#ffe066; }
+#quizCont:hover { background:#4ade80; }
 
 /* ── RANKING TABLE ────────────────────────────────── */
 #rankScroll {
@@ -99,24 +99,24 @@ canvas { display:block; }
   overflow-y: auto;
   margin-top: 8px;
   border-radius: 6px;
-  border: 1px solid #2a2a4a;
+  border: 1px solid #0f2a0f;
   scrollbar-width: thin;
-  scrollbar-color: #FFD700 #1a1a3a;
+  scrollbar-color: #22C55E #0d200d;
 }
 #rankScroll::-webkit-scrollbar { width: 7px; }
-#rankScroll::-webkit-scrollbar-track { background: #1a1a3a; border-radius: 6px; }
-#rankScroll::-webkit-scrollbar-thumb { background: #FFD700; border-radius: 6px; }
+#rankScroll::-webkit-scrollbar-track { background: #0d200d; border-radius: 6px; }
+#rankScroll::-webkit-scrollbar-thumb { background: #22C55E; border-radius: 6px; }
 #rankTable { width:100%; border-collapse:collapse; }
 #rankTable thead th {
   position: sticky; top: 0; z-index: 1;
-  background:#FFD700; color:#000; padding:8px 10px;
+  background:#22C55E; color:#000; padding:8px 10px;
   font-size:12px; text-align:left; font-family:'Courier New',monospace;
 }
 #rankTable td {
-  padding:7px 10px; font-size:13px; border-bottom:1px solid #2a2a4a;
+  padding:7px 10px; font-size:13px; border-bottom:1px solid #0f2a0f;
 }
 #rankTable tr:nth-child(even) td { background:rgba(255,255,255,0.04); }
-#rankTable tr.me td { background:rgba(255,215,0,0.12); color:#FFD700; font-weight:bold; }
+#rankTable tr.me td { background:rgba(34,197,94,0.12); color:#22C55E; font-weight:bold; }
 .medal { font-size:16px; }
 #rankLoading { text-align:center; color:#888; padding:20px; font-size:13px; }
 
@@ -333,7 +333,7 @@ const LEVELS = [
   },
   {
     name:"Torre das Conectivas", bg:"#0a0a0a",
-    groundColor:"#B8860B", groundBase:"#5a4000", cloud:"rgba(255,215,0,0.25)",
+    groundColor:"#1a6b3a", groundBase:"#0f3a1a", cloud:"rgba(34,197,94,0.25)",
     qs:[
       { t:"A preposição é a classe gramatical que:",
         r:"Preposição — Definição",
@@ -371,7 +371,7 @@ let lvlIdx=0, lives=3, score=0;
 let qAnswered=0, qCorrect=0;
 let platforms=[], qblocks=[], coins=[], particles=[], enemies=[], spikes=[], flowerBullets=[];
 let camX=0, quizOpen=false, curQ=null, plInvince=0;
-let flower=null, hasFlower=false;
+let flower=null, hasFlower=false, flowerShotsLeft=0;
 let afterRankingFrom='title';         // onde voltar após fechar ranking
 
 // Dados do jogador
@@ -491,7 +491,7 @@ function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','
 // ════════════════════════════════════════════════════════════════════════
 function buildLevel(idx){
   platforms=[]; qblocks=[]; coins=[]; particles=[]; enemies=[]; spikes=[]; flowerBullets=[];
-  camX=0; qAnswered=0; qCorrect=0; plInvince=0; hasFlower=false; flower=null;
+  camX=0; qAnswered=0; qCorrect=0; plInvince=0; hasFlower=false; flower=null; flowerShotsLeft=0;
 
   platforms.push({x:0,y:GROUND_Y,w:LW,h:60,ground:true});
 
@@ -515,15 +515,15 @@ function buildLevel(idx){
   for(let i=0;i<28;i++)
     coins.push({x:120+i*95+Math.random()*40,y:GROUND_Y-80-Math.random()*90,done:false});
 
-  // Ground enemies (6 patrulheiros no chão)
-  [250,650,1050,1450,1850,2250].forEach(ex=>{
+  // Ground enemies (3 patrulheiros no chão — 50% dos originais)
+  [450,1200,1950].forEach(ex=>{
     enemies.push({x:ex,y:GROUND_Y-28,w:28,h:28,
       vx:1.4*(Math.random()>0.5?1:-1),dead:false,deadTimer:0,
       minX:Math.max(10,ex-180),maxX:Math.min(LW-30,ex+180)});
   });
 
-  // Platform enemies on odd-indexed elevated platforms
-  [1,3,5,7,9,11].forEach(pi=>{
+  // Platform enemies on 2 elevated platforms (reduzido de 6 para 2)
+  [1,9].forEach(pi=>{
     const p=elevPlats[pi]; if(!p||p.w<50) return;
     enemies.push({x:p.x+10,y:p.y-28,w:28,h:28,
       vx:1.1*(Math.random()>0.5?1:-1),dead:false,deadTimer:0,
@@ -572,9 +572,10 @@ function boom(x,y,col,n=8){
 }
 function fireFlowerBullet(){
   if(!hasFlower) return;
-  hasFlower=false;
   flowerBullets.push({x:pl.x+(pl.dir>0?pl.w:-14),y:pl.y+pl.h/2-8,vx:pl.dir*11,w:16,h:16});
   boom(pl.x+pl.w/2,pl.y+pl.h/2,'#ff88cc',8);
+  flowerShotsLeft--;
+  if(flowerShotsLeft<=0) hasFlower=false;
 }
 
 // ════════════════════════════════════════════════════════════════════════
@@ -611,15 +612,15 @@ function update(){
     const head={x:pl.x+4,y:pl.y-4,w:pl.w-8,h:8};
     const foot={x:qb.x,y:qb.y+qb.h-2,w:qb.w,h:6};
     if(pl.vy<-1&&rect(head,foot)){
-      qb.hit=true;qb.bounce=10;pl.vy=3;boom(qb.x+qb.w/2,qb.y,'#FFD700');openQuiz(qb.qi);
+      qb.hit=true;qb.bounce=10;pl.vy=3;boom(qb.x+qb.w/2,qb.y,'#22C55E');openQuiz(qb.qi);
     }
     if(!qb.hit&&pl.x+pl.w>qb.x+2&&pl.x<qb.x+qb.w-2&&pl.y<qb.y+qb.h&&pl.y+pl.h>qb.y){
-      qb.hit=true;qb.bounce=8;boom(qb.x+qb.w/2,qb.y,'#FFD700');openQuiz(qb.qi);
+      qb.hit=true;qb.bounce=8;boom(qb.x+qb.w/2,qb.y,'#22C55E');openQuiz(qb.qi);
     }
   }
   for(const c of coins){
     if(!c.done&&pl.x+pl.w>c.x-8&&pl.x<c.x+18&&pl.y+pl.h>c.y-8&&pl.y<c.y+18){
-      c.done=true;score+=10;boom(c.x,c.y,'#FFD700',6);
+      c.done=true;score+=10;boom(c.x,c.y,'#22C55E',6);
     }
   }
   // ── Enemy + spike + flower update ───────────────────────────────────
@@ -629,7 +630,7 @@ function update(){
   if(flower&&!flower.collected&&
      pl.x+pl.w>flower.x&&pl.x<flower.x+flower.w&&
      pl.y+pl.h>flower.y&&pl.y<flower.y+flower.h){
-    flower.collected=true; hasFlower=true;
+    flower.collected=true; hasFlower=true; flowerShotsLeft=3;
     boom(flower.x+flower.w/2,flower.y,'#ff88cc',10);
   }
 
@@ -734,7 +735,7 @@ function answer(i){
   exp.textContent=(right?'✓ Correto! ':'✗ Errado. ')+curQ.e;
   exp.style.display='block';
   document.getElementById('quizCont').style.display='block';
-  if(right){qCorrect++;score+=150;boom(pl.x+pl.w/2,pl.y,'#FFD700',12);}
+  if(right){qCorrect++;score+=150;boom(pl.x+pl.w/2,pl.y,'#22C55E',12);}
   else{score=Math.max(0,score-50);}
 }
 function closeQuiz(){
@@ -786,19 +787,19 @@ function draw(){
       ctx.strokeStyle='#553311'; ctx.lineWidth=2; ctx.strokeRect(qb.x,by,qb.w,qb.h);
     } else {
       const pulse=Math.sin(Date.now()/400)*3;
-      ctx.fillStyle='#FFB800'; ctx.fillRect(qb.x,by-pulse,qb.w,qb.h);
-      ctx.fillStyle='#FF8800';
+      ctx.fillStyle='#16a34a'; ctx.fillRect(qb.x,by-pulse,qb.w,qb.h);
+      ctx.fillStyle='#15803d';
       ctx.fillRect(qb.x,by-pulse,qb.w,5); ctx.fillRect(qb.x,by-pulse+qb.h-5,qb.w,5);
       ctx.fillRect(qb.x,by-pulse,5,qb.h); ctx.fillRect(qb.x+qb.w-5,by-pulse,5,qb.h);
-      ctx.fillStyle='#993300'; ctx.font='bold 26px serif'; ctx.textAlign='center';
+      ctx.fillStyle='#14532d'; ctx.font='bold 26px serif'; ctx.textAlign='center';
       ctx.fillText('?',qb.x+qb.w/2,by-pulse+qb.h*0.72);
     }
   }
   for(const c of coins){
     if(!c.done){
       const bob=Math.sin(Date.now()/600+c.x)*3;
-      ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle='#CC8800'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle='#22C55E'; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#15803d'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.stroke();
     }
   }
   // Flower power-up
@@ -828,7 +829,7 @@ function draw(){
     const pending=LEVELS[lvlIdx].qs.length-qAnswered;
     if(pending>0){
       ctx.fillStyle='rgba(0,0,0,0.65)'; roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
-      ctx.fillStyle='#FFD700'; ctx.font='13px Courier New'; ctx.textAlign='center';
+      ctx.fillStyle='#22C55E'; ctx.font='13px Courier New'; ctx.textAlign='center';
       ctx.fillText(`Encontre os blocos ? : ${pending} pergunta${pending>1?'s':''} restante${pending>1?'s':''}`,W/2,H-17);
     } else {
       ctx.fillStyle='rgba(0,100,0,0.75)'; roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
@@ -853,7 +854,7 @@ function drawMario(x,y,dir,wf,onG){
   ctx.fillStyle='#111'; ctx.fillRect(x+18,y+4,5,5);
   ctx.fillStyle='#dd9966'; ctx.fillRect(x+21,y+9,5,3);
   ctx.fillStyle='#884400'; ctx.fillRect(x+11,y+10,14,4);
-  ctx.fillStyle='#FFD700'; ctx.fillRect(x+11,y+17,4,4); ctx.fillRect(x+17,y+17,4,4);
+  ctx.fillStyle='#22C55E'; ctx.fillRect(x+11,y+17,4,4); ctx.fillRect(x+17,y+17,4,4);
   ctx.fillStyle='#cc0000'; ctx.fillRect(x-2,y+14,6,10); ctx.fillRect(x+28,y+14,6,10);
   ctx.fillStyle='#ffcc88'; ctx.fillRect(x-3,y+22,6,6); ctx.fillRect(x+29,y+22,6,6);
   ctx.restore();
@@ -926,9 +927,9 @@ function drawFlower(f){
     ctx.beginPath(); ctx.ellipse(cx+Math.cos(a)*7,cy+Math.sin(a)*7,5,5,a,0,Math.PI*2); ctx.fill();
   }
   // Centre
-  ctx.fillStyle='#FFD700';
+  ctx.fillStyle='#22C55E';
   ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='#cc8800'; ctx.lineWidth=1; ctx.stroke();
+  ctx.strokeStyle='#15803d'; ctx.lineWidth=1; ctx.stroke();
 }
 
 // ── NUVENS ───────────────────────────────────────────────────────────
@@ -944,21 +945,21 @@ function drawClouds(col){
 function drawHUD(){
   ctx.fillStyle='rgba(0,0,0,0.72)'; ctx.fillRect(0,0,W,44);
   for(let i=0;i<3;i++) drawHeart(14+i*28,12,i<lives?'#ff3355':'#553344');
-  ctx.fillStyle='#FFD700'; ctx.font='bold 15px Courier New'; ctx.textAlign='center';
+  ctx.fillStyle='#22C55E'; ctx.font='bold 15px Courier New'; ctx.textAlign='center';
   ctx.fillText('PONTOS: '+score,W/2,28);
   // Player name
   ctx.fillStyle='#aaffff'; ctx.font='11px Courier New'; ctx.textAlign='left';
   ctx.fillText(playerName+(playerTurma?' · '+playerTurma:''),100,18);
   ctx.fillStyle='#aaffaa'; ctx.font='11px Courier New'; ctx.textAlign='right';
   ctx.fillText('Fase '+(lvlIdx+1)+': '+LEVELS[lvlIdx].name,W-10,15);
-  ctx.fillStyle='#FFD700';
+  ctx.fillStyle='#22C55E';
   ctx.fillText('Perguntas: '+qAnswered+'/'+LEVELS[lvlIdx].qs.length,W-10,32);
   // Flower power indicator
   if(hasFlower){
     const pulse=0.8+Math.sin(Date.now()/180)*0.2;
     ctx.save(); ctx.globalAlpha=pulse;
     ctx.font='bold 12px Courier New'; ctx.textAlign='left'; ctx.fillStyle='#ff88ff';
-    ctx.fillText('🌸 [Z] DISPARAR FLOR!',W/2+16,15);
+    ctx.fillText('🌸 [Z] FLOR x'+flowerShotsLeft,W/2+16,15);
     ctx.restore();
   }
 }
@@ -986,20 +987,20 @@ function drawTitle(){
   ctx.fillStyle='#8B4513'; ctx.fillRect(0,H-52,W,52);
 
   // Título
-  ctx.shadowColor='#ff8800'; ctx.shadowBlur=14;
-  ctx.fillStyle='#FFD700'; ctx.font='bold 50px serif'; ctx.textAlign='center';
+  ctx.shadowColor='#22C55E'; ctx.shadowBlur=14;
+  ctx.fillStyle='#22C55E'; ctx.font='bold 50px serif'; ctx.textAlign='center';
   ctx.fillText('CLASSES QUEST',W/2,52);
   ctx.shadowBlur=0;
   ctx.fillStyle='#fff'; ctx.font='17px serif';
   ctx.fillText('A Aventura da Gramática',W/2,76);
-  ctx.fillStyle='#FFD700'; ctx.font='bold 13px Courier New';
+  ctx.fillStyle='#22C55E'; ctx.font='bold 13px Courier New';
   ctx.fillText('✎  Prof. Weldes Charles',W/2,97);
-  ctx.strokeStyle='rgba(255,215,0,0.4)'; ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(34,197,94,0.4)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(40,109); ctx.lineTo(W-40,109); ctx.stroke();
 
   // Coluna esquerda — fases
   ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,26,116,358,160,6); ctx.fill();
-  ctx.fillStyle='#FFD700'; ctx.font='bold 12px Courier New'; ctx.textAlign='left';
+  ctx.fillStyle='#22C55E'; ctx.font='bold 12px Courier New'; ctx.textAlign='left';
   ctx.fillText('FASES DO JOGO:',38,133);
   LEVELS.forEach((l,i)=>{
     const lx=38,ly=152+i*22;
@@ -1011,7 +1012,7 @@ function drawTitle(){
   // Coluna esquerda — iniciar
   ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,26,284,358,56,6); ctx.fill();
   if(Math.floor(Date.now()/550)%2){
-    ctx.fillStyle='#FFD700'; ctx.font='bold 14px Courier New'; ctx.textAlign='center';
+    ctx.fillStyle='#22C55E'; ctx.font='bold 14px Courier New'; ctx.textAlign='center';
     ctx.fillText('► ENTER ou ESPAÇO para jogar ◄',205,308);
   }
   ctx.fillStyle='#aaa'; ctx.font='12px Courier New'; ctx.textAlign='center';
@@ -1020,23 +1021,23 @@ function drawTitle(){
   // Coluna direita — cena
   const qbY=210;
   [424,470,516,562].forEach((bx,i)=>{
-    ctx.fillStyle=i%2===0?'#FFB800':'#cc7733'; ctx.fillRect(bx,qbY,40,40);
-    ctx.fillStyle=i%2===0?'#FF8800':'#aa5511';
+    ctx.fillStyle=i%2===0?'#16a34a':'#cc7733'; ctx.fillRect(bx,qbY,40,40);
+    ctx.fillStyle=i%2===0?'#15803d':'#aa5511';
     ctx.fillRect(bx,qbY,40,5); ctx.fillRect(bx,qbY+35,40,5);
     ctx.fillRect(bx,qbY,5,40); ctx.fillRect(bx+35,qbY,5,40);
-    if(i%2===0){ ctx.fillStyle='#993300'; ctx.font='bold 24px serif'; ctx.textAlign='center'; ctx.fillText('?',bx+20,qbY+28); }
+    if(i%2===0){ ctx.fillStyle='#14532d'; ctx.font='bold 24px serif'; ctx.textAlign='center'; ctx.fillText('?',bx+20,qbY+28); }
   });
   [444,512,580].forEach(cx=>{
-    ctx.fillStyle='#FFD700'; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#CC8800'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='#22C55E'; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#15803d'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.stroke();
   });
   drawMario(610,H-68-52,1,0,true,0);
-  ctx.strokeStyle='rgba(255,215,0,0.18)'; ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(34,197,94,0.18)'; ctx.lineWidth=1;
   roundRect(ctx,412,116,372,225,6); ctx.stroke();
 
   // Botão ranking
   ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,412,348,372,32,6); ctx.fill();
-  ctx.fillStyle='#FFD700'; ctx.font='bold 13px Courier New'; ctx.textAlign='center';
+  ctx.fillStyle='#22C55E'; ctx.font='bold 13px Courier New'; ctx.textAlign='center';
   ctx.fillText('🏆 Clique aqui para ver o Ranking',598,369);
 
   // Detectar clique no botão ranking
@@ -1050,9 +1051,9 @@ function drawTitle(){
 }
 
 function drawLvlEnd(){
-  ctx.fillStyle='rgba(0,0,30,0.95)'; ctx.fillRect(0,0,W,H);
-  ctx.shadowColor='#FFD700'; ctx.shadowBlur=20;
-  ctx.fillStyle='#FFD700'; ctx.font='bold 44px serif'; ctx.textAlign='center';
+  ctx.fillStyle='rgba(0,20,0,0.95)'; ctx.fillRect(0,0,W,H);
+  ctx.shadowColor='#22C55E'; ctx.shadowBlur=20;
+  ctx.fillStyle='#22C55E'; ctx.font='bold 44px serif'; ctx.textAlign='center';
   ctx.fillText('FASE COMPLETA!',W/2,100); ctx.shadowBlur=0;
   ctx.fillStyle='#aaffaa'; ctx.font='20px Courier New';
   ctx.fillText(LEVELS[lvlIdx].name,W/2,140);
@@ -1063,7 +1064,7 @@ function drawLvlEnd(){
   const stars=pct>=0.8?3:pct>=0.6?2:1;
   ctx.font='42px serif'; ctx.fillText('⭐'.repeat(stars)+'☆'.repeat(3-stars),W/2,268);
   if(lvlIdx<LEVELS.length-1){
-    ctx.fillStyle='#FFD700'; ctx.font='15px Courier New';
+    ctx.fillStyle='#22C55E'; ctx.font='15px Courier New';
     ctx.fillText('Próxima: Fase '+(lvlIdx+2)+' — '+LEVELS[lvlIdx+1].name,W/2,316);
   }
   if(Math.floor(Date.now()/550)%2){
@@ -1083,9 +1084,9 @@ function drawOver(){
   ctx.fillStyle='#ffaa44'; ctx.font='14px Courier New';
   ctx.fillText('Revise as Classes Gramaticais e tente de novo!',W/2,255);
   // Botão ranking
-  ctx.fillStyle='rgba(255,215,0,0.15)'; roundRect(ctx,W/2-150,278,300,36,8); ctx.fill();
-  ctx.strokeStyle='#FFD700'; ctx.lineWidth=1; roundRect(ctx,W/2-150,278,300,36,8); ctx.stroke();
-  ctx.fillStyle='#FFD700'; ctx.font='13px Courier New';
+  ctx.fillStyle='rgba(34,197,94,0.15)'; roundRect(ctx,W/2-150,278,300,36,8); ctx.fill();
+  ctx.strokeStyle='#22C55E'; ctx.lineWidth=1; roundRect(ctx,W/2-150,278,300,36,8); ctx.stroke();
+  ctx.fillStyle='#22C55E'; ctx.font='13px Courier New';
   ctx.fillText('🏆 Ver Ranking',W/2,302);
   if(Math.floor(Date.now()/550)%2){
     ctx.fillStyle='#aaa'; ctx.font='14px Courier New';
@@ -1104,8 +1105,8 @@ function drawWin(){
   const g=ctx.createLinearGradient(0,0,0,H);
   g.addColorStop(0,'#002200'); g.addColorStop(1,'#004400');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  ctx.shadowColor='#FFD700'; ctx.shadowBlur=25;
-  ctx.fillStyle='#FFD700'; ctx.font='bold 52px serif'; ctx.textAlign='center';
+  ctx.shadowColor='#22C55E'; ctx.shadowBlur=25;
+  ctx.fillStyle='#22C55E'; ctx.font='bold 52px serif'; ctx.textAlign='center';
   ctx.fillText('PARABÉNS!',W/2,75); ctx.shadowBlur=0;
   ctx.fillStyle='#aaffaa'; ctx.font='17px Courier New';
   ctx.fillText('Você dominou as 10 Classes Gramaticais!',W/2,108);
@@ -1122,12 +1123,12 @@ function drawWin(){
    '✓ Conjunção — liga palavras ou orações',
    '✓ Interjeição — exprime emoções e estados de espírito'
   ].forEach((l,i)=>{ ctx.fillStyle='#cfc'; ctx.font='12px Courier New'; ctx.fillText(l,W/2,158+i*22); });
-  ctx.fillStyle='#FFD700'; ctx.font='bold 15px Courier New';
+  ctx.fillStyle='#22C55E'; ctx.font='bold 15px Courier New';
   ctx.fillText('Pontuação final: '+score+'  ⭐⭐⭐',W/2,374);
   // Botão ranking
-  ctx.fillStyle='rgba(255,215,0,0.15)'; roundRect(ctx,W/2-150,390,300,32,8); ctx.fill();
-  ctx.strokeStyle='#FFD700'; ctx.lineWidth=1; roundRect(ctx,W/2-150,390,300,32,8); ctx.stroke();
-  ctx.fillStyle='#FFD700'; ctx.font='bold 13px Courier New';
+  ctx.fillStyle='rgba(34,197,94,0.15)'; roundRect(ctx,W/2-150,390,300,32,8); ctx.fill();
+  ctx.strokeStyle='#22C55E'; ctx.lineWidth=1; roundRect(ctx,W/2-150,390,300,32,8); ctx.stroke();
+  ctx.fillStyle='#22C55E'; ctx.font='bold 13px Courier New';
   ctx.fillText('🏆 Ver Ranking',W/2,412);
   if(Math.floor(Date.now()/550)%2){
     ctx.fillStyle='#aaffff'; ctx.font='13px Courier New';
