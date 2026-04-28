@@ -617,7 +617,7 @@ function update(){
   if(flower&&!flower.collected&&
      pl.x+pl.w>flower.x&&pl.x<flower.x+flower.w&&
      pl.y+pl.h>flower.y&&pl.y<flower.y+flower.h){
-    flower.collected=true; hasFlower=3;
+    flower.collected=true; hasFlower+=3;
     boom(flower.x+flower.w/2,flower.y,'#ff88cc',10);
   }
 
