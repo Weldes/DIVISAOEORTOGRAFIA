@@ -178,11 +178,26 @@ const SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 const SB_READY = SUPABASE_URL !== "COLE_AQUI";
 const supa = SB_READY ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
+let sessionRowId = null; // ID da linha ativa no Supabase para este jogo
+
 async function dbSaveScore(nome, turma, pontuacao, fases){
   if(!SB_READY){ localSave(nome,turma,pontuacao,fases); return; }
   try {
-    const { error } = await supa.from('ranking_concordancia').insert({ nome, turma, pontuacao, fases });
-    if(error) throw error;
+    if(sessionRowId){
+      // Atualiza a linha existente (UPDATE)
+      const { error } = await supa.from('ranking_concordancia')
+        .update({ pontuacao, fases })
+        .eq('id', sessionRowId);
+      if(error) throw error;
+    } else {
+      // Primeira vez: insere e guarda o id retornado
+      const { data, error } = await supa.from('ranking_concordancia')
+        .insert({ nome, turma, pontuacao, fases })
+        .select('id')
+        .single();
+      if(error) throw error;
+      sessionRowId = data.id;
+    }
   } catch(e){ console.warn('Supabase erro:', e); localSave(nome,turma,pontuacao,fases); }
 }
 
@@ -368,7 +383,6 @@ let lifeMsg=0;                // frames para exibir "+1 VIDA!"
 let afterRankingFrom='title';
 
 let playerName='', playerTurma='';
-let scoreSaved=false;
 
 const pl={x:80,y:GROUND_Y-44,w:32,h:44,vx:0,vy:0,ground:false,dir:1,wf:0,wt:0};
 const keys={};
@@ -530,7 +544,7 @@ function buildLevel(idx){
 //  GAME FLOW
 // ════════════════════════════════════════════════════════════════════════
 function startGame(){
-  lvlIdx=0; lives=3; score=0; scoreSaved=false; killCount=0; lifeMsg=0;
+  lvlIdx=0; lives=3; score=0; killCount=0; lifeMsg=0; sessionRowId=null;
   buildLevel(0); state='playing';
 }
 function doNextLevel(){
@@ -545,11 +559,16 @@ function loseLife(){
   if(lives<=0){ state='over'; saveScoreIfNeeded(); return; }
   pl.x=80; pl.y=GROUND_Y-pl.h; pl.vx=0; pl.vy=0; camX=0;
 }
-async function saveScoreIfNeeded(){
-  if(scoreSaved||!playerName) return;
-  scoreSaved=true;
-  await dbSaveScore(playerName, playerTurma, score, lvlIdx);
+function autoSave(){
+  if(!playerName) return;
+  dbSaveScore(playerName, playerTurma, score, lvlIdx+1);
 }
+async function saveScoreIfNeeded(){
+  if(!playerName) return;
+  await dbSaveScore(playerName, playerTurma, score, lvlIdx+1);
+}
+// Salva ao fechar/sair da aba
+window.addEventListener('beforeunload', ()=>{ if(playerName) dbSaveScore(playerName, playerTurma, score, lvlIdx+1); });
 function checkExtraLife(){
   if(killCount%4===0 && lives<6){
     lives++;
@@ -736,6 +755,7 @@ function answer(i){
   document.getElementById('quizCont').style.display='block';
   if(right){qCorrect++;score+=150;boom(pl.x+pl.w/2,pl.y,'#CC88FF',12);}
   else{score=Math.max(0,score-20);}
+  autoSave(); // salva a pontuação atual a cada resposta
 }
 function closeQuiz(){
   document.getElementById('quiz').style.display='none';
