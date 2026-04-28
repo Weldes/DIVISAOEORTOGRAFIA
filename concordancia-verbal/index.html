@@ -363,6 +363,8 @@ let platforms=[], qblocks=[], coins=[], particles=[], enemies=[], spikes=[], flo
 let camX=0, quizOpen=false, curQ=null, curCorrect=0;
 let invFrames=0;
 let flower=null, hasFlower=0; // contador: 0=sem flor, 1-3=tiros restantes
+let killCount=0;              // monstrinhos mortos (a cada 4 → +1 vida, máx 6)
+let lifeMsg=0;                // frames para exibir "+1 VIDA!"
 let afterRankingFrom='title';
 
 let playerName='', playerTurma='';
@@ -528,7 +530,7 @@ function buildLevel(idx){
 //  GAME FLOW
 // ════════════════════════════════════════════════════════════════════════
 function startGame(){
-  lvlIdx=0; lives=3; score=0; scoreSaved=false;
+  lvlIdx=0; lives=3; score=0; scoreSaved=false; killCount=0; lifeMsg=0;
   buildLevel(0); state='playing';
 }
 function doNextLevel(){
@@ -547,6 +549,13 @@ async function saveScoreIfNeeded(){
   if(scoreSaved||!playerName) return;
   scoreSaved=true;
   await dbSaveScore(playerName, playerTurma, score, lvlIdx);
+}
+function checkExtraLife(){
+  if(killCount%4===0 && lives<6){
+    lives++;
+    lifeMsg=120; // exibe mensagem por 2 segundos
+    boom(pl.x+pl.w/2, pl.y, '#ffdd00', 20);
+  }
 }
 function boom(x,y,col,n=8){
   for(let i=0;i<n;i++){
@@ -617,7 +626,7 @@ function update(){
   if(flower&&!flower.collected&&
      pl.x+pl.w>flower.x&&pl.x<flower.x+flower.w&&
      pl.y+pl.h>flower.y&&pl.y<flower.y+flower.h){
-    flower.collected=true; hasFlower+=3;
+    flower.collected=true; hasFlower=3; // sempre exatamente 3 tiros por flor
     boom(flower.x+flower.w/2,flower.y,'#ff88cc',10);
   }
 
@@ -640,6 +649,7 @@ function update(){
     // Pisão: jogador cai em cima do inimigo
     if(pl.vy>0&&hitX&&pl.y+pl.h>e.y+2&&pl.y+pl.h<e.y+e.h*0.6){
       e.dead=true; e.deadTimer=22;
+      killCount++; checkExtraLife();
       pl.vy=JUMP*0.55;
       score+=10; boom(e.x+e.w/2,e.y+e.h/2,'#cc3300',8);
     }
@@ -658,6 +668,7 @@ function update(){
       const e=enemies[ei]; if(e.dead) continue;
       if(b.x+b.w>e.x&&b.x<e.x+e.w&&b.y+b.h>e.y&&b.y<e.y+e.h){
         e.dead=true;e.deadTimer=22;
+        killCount++; checkExtraLife();
         score+=10;boom(e.x+e.w/2,e.y+e.h/2,'#ff44cc',14);
         flowerBullets.splice(bi,1);break;
       }
@@ -919,11 +930,20 @@ function drawClouds(col){
 // ── HUD ──────────────────────────────────────────────────────────────
 function drawHUD(){
   ctx.fillStyle='rgba(0,0,0,0.72)'; ctx.fillRect(0,0,W,44);
-  for(let i=0;i<3;i++) drawHeart(14+i*28,12,i<lives?'#3399ff':'#1a3355');
+  for(let i=0;i<6;i++) drawHeart(8+i*22,12,i<lives?'#3399ff':'#1a3355');
   ctx.fillStyle='#64C8FF'; ctx.font='bold 15px Courier New'; ctx.textAlign='center';
   ctx.fillText('PONTOS: '+score,W/2,28);
   ctx.fillStyle='#aaffff'; ctx.font='11px Courier New'; ctx.textAlign='left';
-  ctx.fillText(playerName+(playerTurma?' · '+playerTurma:''),100,18);
+  ctx.fillText(playerName+(playerTurma?' · '+playerTurma:''),142,18);
+  // Mensagem de vida extra
+  if(lifeMsg>0){
+    lifeMsg--;
+    const alpha=lifeMsg>60?1:lifeMsg/60;
+    ctx.save(); ctx.globalAlpha=alpha;
+    ctx.fillStyle='#ffdd00'; ctx.font='bold 18px Courier New'; ctx.textAlign='center';
+    ctx.fillText('❤️ +1 VIDA!',W/2,H/2-60);
+    ctx.restore();
+  }
   ctx.fillStyle='#aaffaa'; ctx.font='11px Courier New'; ctx.textAlign='right';
   ctx.fillText('Fase '+(lvlIdx+1)+': '+LEVELS[lvlIdx].name,W-10,15);
   ctx.fillStyle='#64C8FF';
