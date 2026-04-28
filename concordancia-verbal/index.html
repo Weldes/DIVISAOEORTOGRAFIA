@@ -18,7 +18,7 @@ body {
   font-family:'Courier New',monospace;
   overflow:hidden;
 }
-#wrap { position:relative; box-shadow:0 0 40px rgba(100,200,255,0.3); border-radius:4px; overflow:hidden; }
+#wrap { position:relative; box-shadow:0 0 40px rgba(180,100,255,0.3); border-radius:4px; overflow:hidden; }
 canvas { display:block; }
 
 /* ── OVERLAY BASE ─────────────────────────────────── */
@@ -30,11 +30,11 @@ canvas { display:block; }
 }
 .overlay.show { display:flex; }
 .panel {
-  border:2px solid #64C8FF; border-radius:14px;
+  border:2px solid #CC88FF; border-radius:14px;
   padding:28px 32px; width:520px; max-width:95%;
   background:rgba(10,10,30,0.98); color:#fff;
 }
-.panel h2 { color:#64C8FF; text-align:center; font-size:18px; margin-bottom:20px; letter-spacing:1px; }
+.panel h2 { color:#CC88FF; text-align:center; font-size:18px; margin-bottom:20px; letter-spacing:1px; }
 .panel h3 { color:#aaffaa; text-align:center; font-size:13px; margin-bottom:16px; }
 .panel label { display:block; font-size:12px; color:#aaa; margin-bottom:5px; margin-top:14px; }
 .panel input {
@@ -43,55 +43,55 @@ canvas { display:block; }
   color:#fff; font-size:15px; font-family:'Courier New',monospace;
   outline:none; transition:border-color .2s;
 }
-.panel input:focus { border-color:#64C8FF; }
+.panel input:focus { border-color:#CC88FF; }
 .btn-blue {
   display:block; width:100%; margin-top:20px; padding:13px;
-  background:#64C8FF; color:#000; border:none; border-radius:8px;
+  background:#CC88FF; color:#000; border:none; border-radius:8px;
   font-size:16px; font-weight:bold; cursor:pointer;
   font-family:'Courier New',monospace; letter-spacing:1px;
   transition:background .15s;
 }
-.btn-blue:hover { background:#8adcff; }
+.btn-blue:hover { background:#EEB8FF; }
 .btn-ghost {
   display:block; width:100%; margin-top:10px; padding:10px;
   background:transparent; color:#888; border:1.5px solid #444; border-radius:8px;
   font-size:13px; cursor:pointer; font-family:'Courier New',monospace;
   transition:color .15s, border-color .15s;
 }
-.btn-ghost:hover { color:#64C8FF; border-color:#64C8FF; }
+.btn-ghost:hover { color:#CC88FF; border-color:#CC88FF; }
 .err { color:#ff6666; font-size:12px; text-align:center; margin-top:8px; min-height:18px; }
 
 /* ── QUIZ ─────────────────────────────────────────── */
 #quiz {
   display:none; position:absolute; top:50%; left:50%;
   transform:translate(-50%,-50%);
-  background:rgba(5,5,20,0.97); border:3px solid #64C8FF;
+  background:rgba(5,5,20,0.97); border:3px solid #CC88FF;
   border-radius:14px; padding:22px 24px 18px;
   width:700px; max-width:96%; z-index:20; color:#fff;
 }
-#quiz h2 { color:#64C8FF; text-align:center; font-size:15px; margin-bottom:12px; letter-spacing:1px; }
+#quiz h2 { color:#CC88FF; text-align:center; font-size:15px; margin-bottom:12px; letter-spacing:1px; }
 #quizQ { font-size:17px; text-align:center; line-height:1.5; margin-bottom:16px; color:#eee; }
 #quizOpts { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
 .obtn {
-  padding:11px 10px; border:2px solid #64C8FF; background:transparent;
+  padding:11px 10px; border:2px solid #CC88FF; background:transparent;
   color:#fff; font-size:14px; cursor:pointer; border-radius:8px;
   font-family:'Courier New',monospace; transition:background .15s,color .15s; text-align:center;
 }
-.obtn:hover:not(:disabled) { background:#64C8FF; color:#000; }
+.obtn:hover:not(:disabled) { background:#CC88FF; color:#000; }
 .obtn.ok  { background:#1a7a1a; border-color:#1a7a1a; cursor:default; }
 .obtn.bad { background:#7a1a1a; border-color:#7a1a1a; cursor:default; }
 #quizExp {
   display:none; margin-top:12px; padding:10px 12px;
-  background:rgba(100,200,255,0.08); border-left:3px solid #64C8FF;
-  border-radius:6px; font-size:13px; color:#64C8FF; line-height:1.5;
+  background:rgba(180,100,255,0.08); border-left:3px solid #CC88FF;
+  border-radius:6px; font-size:13px; color:#CC88FF; line-height:1.5;
 }
 #quizCont {
   display:none; margin-top:12px; width:100%; padding:11px;
-  background:#64C8FF; color:#000; border:none; border-radius:8px;
+  background:#CC88FF; color:#000; border:none; border-radius:8px;
   font-size:15px; font-weight:bold; cursor:pointer;
   font-family:'Courier New',monospace; letter-spacing:1px;
 }
-#quizCont:hover { background:#8adcff; }
+#quizCont:hover { background:#EEB8FF; }
 
 /* ── RANKING TABLE ────────────────────────────────── */
 #rankScroll {
@@ -100,19 +100,19 @@ canvas { display:block; }
 }
 #rankScroll::-webkit-scrollbar { width:7px; }
 #rankScroll::-webkit-scrollbar-track { background:#0a0a20; border-radius:6px; }
-#rankScroll::-webkit-scrollbar-thumb { background:#64C8FF; border-radius:6px; }
-#rankScroll::-webkit-scrollbar-thumb:hover { background:#8adcff; }
+#rankScroll::-webkit-scrollbar-thumb { background:#CC88FF; border-radius:6px; }
+#rankScroll::-webkit-scrollbar-thumb:hover { background:#EEB8FF; }
 #rankTable { width:100%; border-collapse:collapse; }
 #rankTable thead th {
   position:sticky; top:0; z-index:2;
-  background:#64C8FF; color:#000; padding:7px 10px;
+  background:#CC88FF; color:#000; padding:7px 10px;
   font-size:12px; text-align:left; font-family:'Courier New',monospace;
 }
 #rankTable td {
   padding:6px 10px; font-size:13px; border-bottom:1px solid #2a2a4a;
 }
 #rankTable tr:nth-child(even) td { background:rgba(255,255,255,0.04); }
-#rankTable tr.me td { background:rgba(100,200,255,0.12); color:#64C8FF; font-weight:bold; }
+#rankTable tr.me td { background:rgba(180,100,255,0.12); color:#CC88FF; font-weight:bold; }
 .medal { font-size:16px; }
 #rankLoading { text-align:center; color:#888; padding:20px; font-size:13px; }
 
@@ -218,8 +218,8 @@ function fmtDate(d){
 // ════════════════════════════════════════════════════════════════════════
 const LEVELS = [
   {
-    name:"Regra Geral e Sujeito Composto", bg:"#0a2a1a",
-    groundColor:"#1a6b2a", groundBase:"#0a3a14", cloud:"rgba(180,255,200,0.5)",
+    name:"Regra Geral e Sujeito Composto", bg:"#150a2e",
+    groundColor:"#5e1a8a", groundBase:"#250a42", cloud:"rgba(200,150,255,0.5)",
     qs:[
       { t:"Qual a regra geral de concordância verbal?",
         r:"Regra Geral — Sujeito Simples",
@@ -244,8 +244,8 @@ const LEVELS = [
     ]
   },
   {
-    name:"Expressões Partitivas e Porcentagem", bg:"#1a1a3a",
-    groundColor:"#3a3a8a", groundBase:"#1a1a5a", cloud:"rgba(180,180,255,0.5)",
+    name:"Expressões Partitivas e Porcentagem", bg:"#110828",
+    groundColor:"#6622aa", groundBase:"#220a44", cloud:"rgba(200,140,255,0.5)",
     qs:[
       { t:"'Grande parte dos jogadores ___ uma preparação intensa.' Qual é a regra?",
         r:"Sujeito com Expressão Partitiva + nome no plural",
@@ -270,8 +270,8 @@ const LEVELS = [
     ]
   },
   {
-    name:"Pronomes e Expressões Especiais", bg:"#2a0a3a",
-    groundColor:"#6a1a8a", groundBase:"#3a0a5a", cloud:"rgba(220,150,255,0.4)",
+    name:"Pronomes e Expressões Especiais", bg:"#1a0530",
+    groundColor:"#7a1a9a", groundBase:"#2a0a44", cloud:"rgba(210,130,255,0.45)",
     qs:[
       { t:"'Quais de nós ___ a resposta?' Pronome interrogativo + pronome pessoal:",
         r:"Pronome Interrogativo / Indefinido + Pronome Pessoal",
@@ -296,8 +296,8 @@ const LEVELS = [
     ]
   },
   {
-    name:"Conectivos Especiais e Sujeito", bg:"#2a1a00",
-    groundColor:"#8a4a00", groundBase:"#5a2a00", cloud:"rgba(255,200,100,0.35)",
+    name:"Conectivos Especiais e Sujeito", bg:"#180a2c",
+    groundColor:"#7733bb", groundBase:"#3a1a66", cloud:"rgba(200,130,255,0.4)",
     qs:[
       { t:"'A menina com sua mãe ___ a queixa.' Sujeito ligado por 'com' (sentido aditivo):",
         r:"Sujeito composto com 'com' (sentido aditivo)",
@@ -322,8 +322,8 @@ const LEVELS = [
     ]
   },
   {
-    name:"Verbos Impessoais e Casos com SE", bg:"#0a0a0a",
-    groundColor:"#1a6a6a", groundBase:"#0a3a3a", cloud:"rgba(100,255,255,0.25)",
+    name:"Verbos Impessoais e Casos com SE", bg:"#080512",
+    groundColor:"#5a1888", groundBase:"#200a3a", cloud:"rgba(180,100,255,0.3)",
     qs:[
       { t:"'___ meios de conseguir a vitória.' Verbo HAVER (sentido de existir):",
         r:"Verbo Haver — impessoal (existir/ocorrer/acontecer)",
@@ -604,15 +604,15 @@ function update(){
     const head={x:pl.x+4,y:pl.y-4,w:pl.w-8,h:8};
     const foot={x:qb.x,y:qb.y+qb.h-2,w:qb.w,h:6};
     if(pl.vy<-1&&rect(head,foot)){
-      qb.hit=true;qb.bounce=10;pl.vy=3;boom(qb.x+qb.w/2,qb.y,'#64C8FF');openQuiz(qb.qi);
+      qb.hit=true;qb.bounce=10;pl.vy=3;boom(qb.x+qb.w/2,qb.y,'#CC88FF');openQuiz(qb.qi);
     }
     if(!qb.hit&&pl.x+pl.w>qb.x+2&&pl.x<qb.x+qb.w-2&&pl.y<qb.y+qb.h&&pl.y+pl.h>qb.y){
-      qb.hit=true;qb.bounce=8;boom(qb.x+qb.w/2,qb.y,'#64C8FF');openQuiz(qb.qi);
+      qb.hit=true;qb.bounce=8;boom(qb.x+qb.w/2,qb.y,'#CC88FF');openQuiz(qb.qi);
     }
   }
   for(const c of coins){
     if(!c.done&&pl.x+pl.w>c.x-8&&pl.x<c.x+18&&pl.y+pl.h>c.y-8&&pl.y<c.y+18){
-      c.done=true;score+=10;boom(c.x,c.y,'#64C8FF',6);
+      c.done=true;score+=10;boom(c.x,c.y,'#CC88FF',6);
     }
   }
   const flag={x:LW-80,y:GROUND_Y-220,w:60,h:220};
@@ -734,7 +734,7 @@ function answer(i){
   exp.textContent=(right?'✓ Correto! ':'✗ Errado. ')+curQ.e;
   exp.style.display='block';
   document.getElementById('quizCont').style.display='block';
-  if(right){qCorrect++;score+=150;boom(pl.x+pl.w/2,pl.y,'#64C8FF',12);}
+  if(right){qCorrect++;score+=150;boom(pl.x+pl.w/2,pl.y,'#CC88FF',12);}
   else{score=Math.max(0,score-20);}
 }
 function closeQuiz(){
@@ -773,8 +773,8 @@ function draw(){
       ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=1;
       for(let bx=p.x;bx<p.x+p.w;bx+=40){ctx.beginPath();ctx.moveTo(bx,p.y+16);ctx.lineTo(bx,p.y+p.h);ctx.stroke();}
     } else {
-      ctx.fillStyle='#336699'; ctx.fillRect(p.x,p.y,p.w,p.h);
-      ctx.fillStyle='#224477'; ctx.fillRect(p.x,p.y,p.w,5);
+      ctx.fillStyle='#553399'; ctx.fillRect(p.x,p.y,p.w,p.h);
+      ctx.fillStyle='#442288'; ctx.fillRect(p.x,p.y,p.w,5);
       ctx.strokeStyle='rgba(0,0,0,0.25)'; ctx.lineWidth=1;
       for(let bx=p.x;bx<p.x+p.w;bx+=25){ctx.beginPath();ctx.moveTo(bx,p.y);ctx.lineTo(bx,p.y+p.h);ctx.stroke();}
     }
@@ -782,12 +782,12 @@ function draw(){
   for(const qb of qblocks){
     const by=qb.bounce>0?qb.y-qb.bounce*0.8:qb.y;
     if(qb.hit){
-      ctx.fillStyle='#335577'; ctx.fillRect(qb.x,by,qb.w,qb.h);
-      ctx.strokeStyle='#224466'; ctx.lineWidth=2; ctx.strokeRect(qb.x,by,qb.w,qb.h);
+      ctx.fillStyle='#442266'; ctx.fillRect(qb.x,by,qb.w,qb.h);
+      ctx.strokeStyle='#331155'; ctx.lineWidth=2; ctx.strokeRect(qb.x,by,qb.w,qb.h);
     } else {
       const pulse=Math.sin(Date.now()/400)*3;
-      ctx.fillStyle='#0088CC'; ctx.fillRect(qb.x,by-pulse,qb.w,qb.h);
-      ctx.fillStyle='#0055AA';
+      ctx.fillStyle='#8822CC'; ctx.fillRect(qb.x,by-pulse,qb.w,qb.h);
+      ctx.fillStyle='#6611AA';
       ctx.fillRect(qb.x,by-pulse,qb.w,5); ctx.fillRect(qb.x,by-pulse+qb.h-5,qb.w,5);
       ctx.fillRect(qb.x,by-pulse,5,qb.h); ctx.fillRect(qb.x+qb.w-5,by-pulse,5,qb.h);
       ctx.fillStyle='#ffffff'; ctx.font='bold 26px serif'; ctx.textAlign='center';
@@ -797,8 +797,8 @@ function draw(){
   for(const c of coins){
     if(!c.done){
       const bob=Math.sin(Date.now()/600+c.x)*3;
-      ctx.fillStyle='#64C8FF'; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle='#2288CC'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle='#CC88FF'; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#9933BB'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(c.x,c.y+bob,8,0,Math.PI*2); ctx.stroke();
     }
   }
   // ── Espinhos ──────────────────────────────────────────────────────────
@@ -854,7 +854,7 @@ function draw(){
   for(const b of flowerBullets){
     const sz=7+Math.sin(Date.now()/60)*2;
     const grd=ctx.createRadialGradient(b.x+b.w/2,b.y+b.h/2,1,b.x+b.w/2,b.y+b.h/2,sz+5);
-    grd.addColorStop(0,'rgba(80,220,255,1)'); grd.addColorStop(1,'rgba(80,220,255,0)');
+    grd.addColorStop(0,'rgba(180,80,255,1)'); grd.addColorStop(1,'rgba(180,80,255,0)');
     ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(b.x+b.w/2,b.y+b.h/2,sz+5,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(b.x+b.w/2,b.y+b.h/2,4,0,Math.PI*2); ctx.fill();
   }
@@ -867,11 +867,11 @@ function draw(){
     const pending=LEVELS[lvlIdx].qs.length-qAnswered;
     if(pending>0){
       ctx.fillStyle='rgba(0,0,0,0.65)'; roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
-      ctx.fillStyle='#64C8FF'; ctx.font='13px Courier New'; ctx.textAlign='center';
+      ctx.fillStyle='#CC88FF'; ctx.font='13px Courier New'; ctx.textAlign='center';
       ctx.fillText(`Encontre os blocos ? : ${pending} pergunta${pending>1?'s':''} restante${pending>1?'s':''}`,W/2,H-17);
     } else {
-      ctx.fillStyle='rgba(0,80,100,0.75)'; roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
-      ctx.fillStyle='#AAFFFF'; ctx.font='13px Courier New'; ctx.textAlign='center';
+      ctx.fillStyle='rgba(60,0,80,0.75)'; roundRect(ctx,W/2-170,H-36,340,28,6); ctx.fill();
+      ctx.fillStyle='#EECCFF'; ctx.font='13px Courier New'; ctx.textAlign='center';
       ctx.fillText('Chegue à bandeira verde para avançar! ▶',W/2,H-17);
     }
   }
@@ -892,7 +892,7 @@ function drawMario(x,y,dir,wf,onG){
   ctx.fillStyle='#111'; ctx.fillRect(x+18,y+4,5,5);
   ctx.fillStyle='#dd9966'; ctx.fillRect(x+21,y+9,5,3);
   ctx.fillStyle='#884400'; ctx.fillRect(x+11,y+10,14,4);
-  ctx.fillStyle='#64C8FF'; ctx.fillRect(x+11,y+17,4,4); ctx.fillRect(x+17,y+17,4,4);
+  ctx.fillStyle='#CC88FF'; ctx.fillRect(x+11,y+17,4,4); ctx.fillRect(x+17,y+17,4,4);
   ctx.fillStyle='#cc0000'; ctx.fillRect(x-2,y+14,6,10); ctx.fillRect(x+28,y+14,6,10);
   ctx.fillStyle='#ffcc88'; ctx.fillRect(x-3,y+22,6,6); ctx.fillRect(x+29,y+22,6,6);
   ctx.restore();
@@ -903,11 +903,11 @@ function drawFlower(f){
   const bob=Math.sin(Date.now()/350)*3;
   const cx=f.x+f.w/2, cy=f.y+10+bob;
   const grd=ctx.createRadialGradient(cx,cy,2,cx,cy,16);
-  grd.addColorStop(0,'rgba(100,200,255,0.55)'); grd.addColorStop(1,'rgba(100,200,255,0)');
+  grd.addColorStop(0,'rgba(180,100,255,0.55)'); grd.addColorStop(1,'rgba(180,100,255,0)');
   ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(cx,cy,16,0,Math.PI*2); ctx.fill();
   ctx.strokeStyle='#22aa22'; ctx.lineWidth=2.5;
   ctx.beginPath(); ctx.moveTo(cx,cy+8); ctx.lineTo(cx,f.y+f.h); ctx.stroke();
-  const pCols=['#3399ff','#00ccff','#66ffff','#0077cc','#44aaff'];
+  const pCols=['#9933ff','#00ccff','#66ffff','#0077cc','#44aaff'];
   for(let i=0;i<5;i++){
     const a=(i/5)*Math.PI*2-Math.PI/2;
     ctx.fillStyle=pCols[i];
@@ -915,7 +915,7 @@ function drawFlower(f){
   }
   ctx.fillStyle='#fff';
   ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle='#64C8FF'; ctx.lineWidth=1; ctx.stroke();
+  ctx.strokeStyle='#CC88FF'; ctx.lineWidth=1; ctx.stroke();
 }
 
 // ── NUVENS ───────────────────────────────────────────────────────────
@@ -930,10 +930,10 @@ function drawClouds(col){
 // ── HUD ──────────────────────────────────────────────────────────────
 function drawHUD(){
   ctx.fillStyle='rgba(0,0,0,0.72)'; ctx.fillRect(0,0,W,44);
-  for(let i=0;i<6;i++) drawHeart(8+i*22,12,i<lives?'#3399ff':'#1a3355');
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 15px Courier New'; ctx.textAlign='center';
+  for(let i=0;i<6;i++) drawHeart(8+i*22,12,i<lives?'#9933ff':'#2a1040');
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 15px Courier New'; ctx.textAlign='center';
   ctx.fillText('PONTOS: '+score,W/2,28);
-  ctx.fillStyle='#aaffff'; ctx.font='11px Courier New'; ctx.textAlign='left';
+  ctx.fillStyle='#eeccff'; ctx.font='11px Courier New'; ctx.textAlign='left';
   ctx.fillText(playerName+(playerTurma?' · '+playerTurma:''),142,18);
   // Mensagem de vida extra
   if(lifeMsg>0){
@@ -946,12 +946,12 @@ function drawHUD(){
   }
   ctx.fillStyle='#aaffaa'; ctx.font='11px Courier New'; ctx.textAlign='right';
   ctx.fillText('Fase '+(lvlIdx+1)+': '+LEVELS[lvlIdx].name,W-10,15);
-  ctx.fillStyle='#64C8FF';
+  ctx.fillStyle='#CC88FF';
   ctx.fillText('Perguntas: '+qAnswered+'/'+LEVELS[lvlIdx].qs.length,W-10,32);
   if(hasFlower>0){
     const pulse=0.8+Math.sin(Date.now()/180)*0.2;
     ctx.save(); ctx.globalAlpha=pulse;
-    ctx.font='bold 12px Courier New'; ctx.textAlign='left'; ctx.fillStyle='#88ffff';
+    ctx.font='bold 12px Courier New'; ctx.textAlign='left'; ctx.fillStyle='#dd88ff';
     ctx.fillText(`🌸 [Z] DISPARAR  ${'●'.repeat(hasFlower)}${'○'.repeat(3-hasFlower)}`,W/2+16,15);
     ctx.restore();
   }
@@ -968,30 +968,30 @@ function drawHeart(x,y,col){
 // ════════════════════════════════════════════════════════════════════════
 function drawTitle(){
   const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#051a3a'); g.addColorStop(1,'#0a3a6a');
+  g.addColorStop(0,'#120530'); g.addColorStop(1,'#2a0a60');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
 
-  ctx.fillStyle='rgba(100,200,255,0.4)';
+  ctx.fillStyle='rgba(180,100,255,0.4)';
   [[65,38],[245,26],[490,40],[670,30]].forEach(([cx,cy])=>{
     ctx.beginPath(); ctx.arc(cx,cy,16,0,Math.PI*2); ctx.arc(cx+22,cy-7,20,0,Math.PI*2); ctx.arc(cx+44,cy,16,0,Math.PI*2); ctx.fill();
   });
 
-  ctx.fillStyle='#1a6b2a'; ctx.fillRect(0,H-68,W,16);
-  ctx.fillStyle='#0a3a14'; ctx.fillRect(0,H-52,W,52);
+  ctx.fillStyle='#5e1a8a'; ctx.fillRect(0,H-68,W,16);
+  ctx.fillStyle='#250a42'; ctx.fillRect(0,H-52,W,52);
 
-  ctx.shadowColor='#0088ff'; ctx.shadowBlur=14;
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 44px serif'; ctx.textAlign='center';
+  ctx.shadowColor='#8800ff'; ctx.shadowBlur=14;
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 44px serif'; ctx.textAlign='center';
   ctx.fillText('CONCORDÂNCIA QUEST',W/2,50);
   ctx.shadowBlur=0;
   ctx.fillStyle='#fff'; ctx.font='16px serif';
   ctx.fillText('Gramática em Ação — 3º Ano B',W/2,74);
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 13px Courier New';
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 13px Courier New';
   ctx.fillText('✎  Prof. Weldes Charles',W/2,95);
-  ctx.strokeStyle='rgba(100,200,255,0.4)'; ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(180,100,255,0.4)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(40,107); ctx.lineTo(W-40,107); ctx.stroke();
 
   ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,26,114,358,162,6); ctx.fill();
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 12px Courier New'; ctx.textAlign='left';
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 12px Courier New'; ctx.textAlign='left';
   ctx.fillText('FASES DO JOGO:',38,131);
   LEVELS.forEach((l,i)=>{
     const lx=38,ly=150+i*22;
@@ -1002,7 +1002,7 @@ function drawTitle(){
 
   ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,26,284,358,56,6); ctx.fill();
   if(Math.floor(Date.now()/550)%2){
-    ctx.fillStyle='#64C8FF'; ctx.font='bold 14px Courier New'; ctx.textAlign='center';
+    ctx.fillStyle='#CC88FF'; ctx.font='bold 14px Courier New'; ctx.textAlign='center';
     ctx.fillText('► ENTER ou ESPAÇO para jogar ◄',205,308);
   }
   ctx.fillStyle='#aaa'; ctx.font='12px Courier New'; ctx.textAlign='center';
@@ -1010,22 +1010,22 @@ function drawTitle(){
 
   const qbY=210;
   [424,470,516,562].forEach((bx,i)=>{
-    ctx.fillStyle=i%2===0?'#0088CC':'#336699'; ctx.fillRect(bx,qbY,40,40);
-    ctx.fillStyle=i%2===0?'#0055AA':'#224477';
+    ctx.fillStyle=i%2===0?'#8822CC':'#553399'; ctx.fillRect(bx,qbY,40,40);
+    ctx.fillStyle=i%2===0?'#6611AA':'#442288';
     ctx.fillRect(bx,qbY,40,5); ctx.fillRect(bx,qbY+35,40,5);
     ctx.fillRect(bx,qbY,5,40); ctx.fillRect(bx+35,qbY,5,40);
     if(i%2===0){ ctx.fillStyle='#ffffff'; ctx.font='bold 24px serif'; ctx.textAlign='center'; ctx.fillText('?',bx+20,qbY+28); }
   });
   [444,512,580].forEach(cx=>{
-    ctx.fillStyle='#64C8FF'; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='#2288CC'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.stroke();
+    ctx.fillStyle='#CC88FF'; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#9933BB'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(cx,qbY-22,7,0,Math.PI*2); ctx.stroke();
   });
   drawMario(610,H-68-52,1,0,true,0);
-  ctx.strokeStyle='rgba(100,200,255,0.18)'; ctx.lineWidth=1;
+  ctx.strokeStyle='rgba(180,100,255,0.18)'; ctx.lineWidth=1;
   roundRect(ctx,412,114,372,225,6); ctx.stroke();
 
   ctx.fillStyle='rgba(0,0,0,0.38)'; roundRect(ctx,412,348,372,32,6); ctx.fill();
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 13px Courier New'; ctx.textAlign='center';
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 13px Courier New'; ctx.textAlign='center';
   ctx.fillText('🏆 Clique aqui para ver o Ranking',598,369);
 
   canvas.onclick=e=>{
@@ -1039,10 +1039,10 @@ function drawTitle(){
 
 function drawLvlEnd(){
   ctx.fillStyle='rgba(0,10,30,0.95)'; ctx.fillRect(0,0,W,H);
-  ctx.shadowColor='#64C8FF'; ctx.shadowBlur=20;
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 44px serif'; ctx.textAlign='center';
+  ctx.shadowColor='#CC88FF'; ctx.shadowBlur=20;
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 44px serif'; ctx.textAlign='center';
   ctx.fillText('FASE COMPLETA!',W/2,100); ctx.shadowBlur=0;
-  ctx.fillStyle='#aaffff'; ctx.font='20px Courier New';
+  ctx.fillStyle='#eeccff'; ctx.font='20px Courier New';
   ctx.fillText(LEVELS[lvlIdx].name,W/2,140);
   ctx.fillStyle='#fff'; ctx.font='17px Courier New';
   ctx.fillText('Perguntas corretas: '+qCorrect+' / '+qAnswered,W/2,188);
@@ -1051,11 +1051,11 @@ function drawLvlEnd(){
   const stars=pct>=0.8?3:pct>=0.6?2:1;
   ctx.font='42px serif'; ctx.fillText('⭐'.repeat(stars)+'☆'.repeat(3-stars),W/2,268);
   if(lvlIdx<LEVELS.length-1){
-    ctx.fillStyle='#64C8FF'; ctx.font='15px Courier New';
+    ctx.fillStyle='#CC88FF'; ctx.font='15px Courier New';
     ctx.fillText('Próxima: Fase '+(lvlIdx+2)+' — '+LEVELS[lvlIdx+1].name,W/2,316);
   }
   if(Math.floor(Date.now()/550)%2){
-    ctx.fillStyle='#aaffff'; ctx.font='bold 18px Courier New';
+    ctx.fillStyle='#eeccff'; ctx.font='bold 18px Courier New';
     ctx.fillText(lvlIdx<LEVELS.length-1?'► ENTER para continuar':'► ENTER para ver resultado final',W/2,H-55);
   }
 }
@@ -1068,11 +1068,11 @@ function drawOver(){
   ctx.fillStyle='#fff'; ctx.font='16px Courier New';
   ctx.fillText(playerName+' · '+playerTurma,W/2,185);
   ctx.fillText('Pontuação registrada: '+score,W/2,215);
-  ctx.fillStyle='#64C8FF'; ctx.font='14px Courier New';
+  ctx.fillStyle='#CC88FF'; ctx.font='14px Courier New';
   ctx.fillText('Revise a Concordância Verbal e tente novamente!',W/2,255);
-  ctx.fillStyle='rgba(100,200,255,0.15)'; roundRect(ctx,W/2-150,278,300,36,8); ctx.fill();
-  ctx.strokeStyle='#64C8FF'; ctx.lineWidth=1; roundRect(ctx,W/2-150,278,300,36,8); ctx.stroke();
-  ctx.fillStyle='#64C8FF'; ctx.font='13px Courier New';
+  ctx.fillStyle='rgba(180,100,255,0.15)'; roundRect(ctx,W/2-150,278,300,36,8); ctx.fill();
+  ctx.strokeStyle='#CC88FF'; ctx.lineWidth=1; roundRect(ctx,W/2-150,278,300,36,8); ctx.stroke();
+  ctx.fillStyle='#CC88FF'; ctx.font='13px Courier New';
   ctx.fillText('🏆 Ver Ranking',W/2,302);
   if(Math.floor(Date.now()/550)%2){
     ctx.fillStyle='#aaa'; ctx.font='14px Courier New';
@@ -1091,10 +1091,10 @@ function drawWin(){
   const g=ctx.createLinearGradient(0,0,0,H);
   g.addColorStop(0,'#001a3a'); g.addColorStop(1,'#003366');
   ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-  ctx.shadowColor='#64C8FF'; ctx.shadowBlur=25;
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 52px serif'; ctx.textAlign='center';
+  ctx.shadowColor='#CC88FF'; ctx.shadowBlur=25;
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 52px serif'; ctx.textAlign='center';
   ctx.fillText('PARABÉNS!',W/2,75); ctx.shadowBlur=0;
-  ctx.fillStyle='#aaffff'; ctx.font='17px Courier New';
+  ctx.fillStyle='#eeccff'; ctx.font='17px Courier New';
   ctx.fillText('Você dominou a Concordância Verbal!',W/2,108);
   ctx.fillStyle='#fff'; ctx.font='13px Courier New';
   ctx.fillText(playerName+' · Turma '+playerTurma,W/2,132);
@@ -1103,16 +1103,16 @@ function drawWin(){
    '✓ Pronomes e Expressões Especiais',
    '✓ Conectivos Especiais (com, nem, ou...)',
    '✓ Verbos Impessoais e Casos com SE'
-  ].forEach((l,i)=>{ ctx.fillStyle='#aaddff'; ctx.font='13px Courier New'; ctx.fillText(l,W/2,160+i*24); });
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 16px Courier New';
+  ].forEach((l,i)=>{ ctx.fillStyle='#ddbbff'; ctx.font='13px Courier New'; ctx.fillText(l,W/2,160+i*24); });
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 16px Courier New';
   ctx.fillText('Pontuação final: '+score,W/2,300);
   ctx.font='42px serif'; ctx.fillText('⭐⭐⭐',W/2,348);
-  ctx.fillStyle='rgba(100,200,255,0.15)'; roundRect(ctx,W/2-150,362,300,36,8); ctx.fill();
-  ctx.strokeStyle='#64C8FF'; ctx.lineWidth=1; roundRect(ctx,W/2-150,362,300,36,8); ctx.stroke();
-  ctx.fillStyle='#64C8FF'; ctx.font='bold 14px Courier New';
+  ctx.fillStyle='rgba(180,100,255,0.15)'; roundRect(ctx,W/2-150,362,300,36,8); ctx.fill();
+  ctx.strokeStyle='#CC88FF'; ctx.lineWidth=1; roundRect(ctx,W/2-150,362,300,36,8); ctx.stroke();
+  ctx.fillStyle='#CC88FF'; ctx.font='bold 14px Courier New';
   ctx.fillText('🏆 Ver Ranking',W/2,386);
   if(Math.floor(Date.now()/550)%2){
-    ctx.fillStyle='#aaffff'; ctx.font='13px Courier New';
+    ctx.fillStyle='#eeccff'; ctx.font='13px Courier New';
     ctx.fillText('ENTER para jogar novamente',W/2,H-12);
   }
   canvas.onclick=e=>{
