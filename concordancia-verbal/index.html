@@ -561,14 +561,14 @@ function loseLife(){
 }
 function autoSave(){
   if(!playerName) return;
-  dbSaveScore(playerName, playerTurma, score, lvlIdx+1);
+  dbSaveScore(playerName, playerTurma, score, Math.min(lvlIdx+1, LEVELS.length));
 }
 async function saveScoreIfNeeded(){
   if(!playerName) return;
-  await dbSaveScore(playerName, playerTurma, score, lvlIdx+1);
+  await dbSaveScore(playerName, playerTurma, score, Math.min(lvlIdx+1, LEVELS.length));
 }
 // Salva ao fechar/sair da aba
-window.addEventListener('beforeunload', ()=>{ if(playerName) dbSaveScore(playerName, playerTurma, score, lvlIdx+1); });
+window.addEventListener('beforeunload', ()=>{ if(playerName) dbSaveScore(playerName, playerTurma, score, Math.min(lvlIdx+1, LEVELS.length)); });
 function checkExtraLife(){
   if(killCount%4===0 && lives<6){
     lives++;
@@ -965,7 +965,7 @@ function drawHUD(){
     ctx.restore();
   }
   ctx.fillStyle='#aaffaa'; ctx.font='11px Courier New'; ctx.textAlign='right';
-  ctx.fillText('Fase '+(lvlIdx+1)+': '+LEVELS[lvlIdx].name,W-10,15);
+  ctx.fillText('Fase '+(Math.min(lvlIdx+1, LEVELS.length))+': '+LEVELS[lvlIdx].name,W-10,15);
   ctx.fillStyle='#CC88FF';
   ctx.fillText('Perguntas: '+qAnswered+'/'+LEVELS[lvlIdx].qs.length,W-10,32);
   if(hasFlower>0){
@@ -1072,7 +1072,7 @@ function drawLvlEnd(){
   ctx.font='42px serif'; ctx.fillText('⭐'.repeat(stars)+'☆'.repeat(3-stars),W/2,268);
   if(lvlIdx<LEVELS.length-1){
     ctx.fillStyle='#CC88FF'; ctx.font='15px Courier New';
-    ctx.fillText('Próxima: Fase '+(lvlIdx+2)+' — '+LEVELS[lvlIdx+1].name,W/2,316);
+    ctx.fillText('Próxima: Fase '+(lvlIdx+2)+' — '+LEVELS[Math.min(lvlIdx+1, LEVELS.length)].name,W/2,316);
   }
   if(Math.floor(Date.now()/550)%2){
     ctx.fillStyle='#eeccff'; ctx.font='bold 18px Courier New';
