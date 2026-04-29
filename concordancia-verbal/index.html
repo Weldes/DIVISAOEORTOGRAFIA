@@ -181,6 +181,7 @@ const supa = SB_READY ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null
 let sessionRowId = null; // ID da linha ativa no Supabase para este jogo
 
 async function dbSaveScore(nome, turma, pontuacao, fases){
+  fases = Math.min(fases, 5); // garantia: nunca ultrapassa o total de fases
   if(!SB_READY){ localSave(nome,turma,pontuacao,fases); return; }
   try {
     if(sessionRowId){
